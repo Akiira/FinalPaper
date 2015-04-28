@@ -1,0 +1,448 @@
+\documentclass[runningheads]{llncs}
+\usepackage[dvips]{graphicx}\usepackage{placeins}
+\usepackage{fancyvrb}
+\usepackage[bf]{caption2}
+\usepackage{amssymb,amsmath}
+
+\begin{document}
+\pagestyle{headings}
+\mainmatter
+
+\title{Using Genetic Algorithms to Generate Test Suites}
+%Each page title
+\titlerunning{}
+%Authors
+\author{Austin Barket \and Randall Hudson}
+%Authors on each page
+\authorrunning{Austin Barket and Randall Hudson}
+%University Address and contact information
+\institute{Department of Computer Science\\
+The Pennsylvania State University at Harrisburg\\
+Middletown, PA 17057\\
+\email{666@psu.edu, rvh5220@psu.edu} } \maketitle
+%Document text starts here ...
+
+\begin{abstract}
+This paper applies techniques of genetic algorithms to the problem of finding test suites that cover every edge or predicate in a programs control flow graph. It differs in other applications of genetic algorithms to software testing in that the organisms are test suites rather than test cases. Experimental results show....
+\end{abstract}
+
+
+\section{TODO}
+
+\begin{itemize}
+\item Add any missing citations
+\item Decide if to use FloatBarrier or not
+\item Our Work section
+     \begin{itemize}
+     \item Begin with short, broad overview, then begin algorithm section
+     \item Pick Main Loop algorithm
+     \item FindRanges algorithm
+     \item AdaptRanges alg
+     \item For each algorithm, discuss it briefly in words
+     \end{itemize}
+\item Experimental results section
+     \begin{itemize}
+     \item Discuss the programs we tested on
+     \item Maybe give a theoretical running time for a random searcher to find inputs for HardCFG
+     \item Give results (Tables and graphs)
+     \end{itemize}
+\item Discussion Section
+     \begin{itemize}
+     \item 
+     \end{itemize}
+\item Conclusion Section
+     \begin{itemize}
+     \item Concluding remarks
+     \item Future work
+     \end{itemize}
+\item Read over the copy and pasted sections from proposal to make sure it all makes sense in this new context.
+\item Add a little bit more to the survey section, specifically more modern stuff
+\end{itemize}
+
+\section{Introduction}
+Software testing is a tedious and expensive process, costing as much as 50\% of a projects budget \cite{meyers1}. One reason for this is the fact that the input domain for programs tends to be extremely large, often times infinite; this makes it impossible to test all possible inputs for a program \cite{meyers1}. Thus, testers spend a large portion of their time simply searching/designing good tests. One aspect of automatic testing research aims to alleviate this burden via the automatic generation of tests.
+
+Automatic test generation can be characterized by the creation of some system that when fed information about a program will attempt to generate good tests for that program. In model based testing, one such method for automatic test generation, engineers must design a model of the system using the functional requirements for the system; the model then generates tests cases to test the functional requirements \cite{model2}. In rule based test generation, testers design a framework of rules, generally built around predicate statements; this framework then dictates the creations of test cases based on the predicate statements in the code \cite{chang3}. These are two of the common methods used in automatic test generation. These methods generally require some upfront design costs before use. 
+
+Genetic algorithms represent a third, and perhaps more interesting, method of automatic test generation. Tests, or test suites, take the role of the organisms in this genetic algorithm while their coverage, e.g. branch, conditional, etc, determines their fitness \cite{sthammer4}. This method represented an underexploited area of research and will be further examined in this paper. 
+
+\newpage
+\section{Problem Definition}
+In high-level terms the problem succinctly presents itself as such: automatically generate good tests for a given program; but this leaves several open questions, such as ``what information if any can be gotten from the program to help design the tests?'' and ``what constitutes a good test?'' The field of structural testing will help answer both of these questions.
+
+In any given program there are multiple paths in which flow of control can traverse; these can be represented by a control flow graph; predicates, i.e. conditional statements in the code, determine which path to take [1]. Structural testing encompasses the use of such information to design tests [1].
+
+When evaluating a test's coverage, the predicates, and the flow of control they affect, play an important role. Consider the following simple metric: A test suite should cover every possible path in a program at least once. Using the control flow graph one can easily evaluate the quality of tests against this metric. A good test suite then becomes one in which most if not all of the possible paths are taken at least once. Structural testing uses this metric, and similar metrics, as its primary evaluation method for tests.
+
+The problem to solve can now be stated with more detail: automatically create a test suite that covers all, or most, paths in a programs control flow graph. It is the authors' intention to solve this problem with a genetic algorithm. 
+
+To design a genetic algorithm that solves this problem it will need the following information: the input parameters for the program, the control flow graph, and the predicates affecting each path. The output would consist of a population of test cases or test suites, depending on design decisions, that should consist of good tests. 
+
+\newpage
+\section{Related Work}
+Using genetic algorithms to generate tests represents a relatively new area of research, with the first published results dating from only 1992 \cite{apps5}. Initially, genetic algorithms evolved tests that would ensure all predicates for a single path of execution were true\cite{limits6}. Later, Watkins created an adaptive fitness function that would create tests for one particular branch of the control flow graph and then switch to a different branch once some tests were found; this approach allowed a single run of the genetic algorithm to attempt to evolve the tests needed for full branch coverage\cite{limits6}. Watson's results showed that a genetic algorithm, compared to random testing, required ``an order of magnitude fewer tests to achieve path coverage…''\cite{limits6} 
+
+Up to this point, the fitness functions viewed a branch's predicate as just a boolean function, that is true or false; this did not take full advantage of white box testing in which the exact details of each predicate can be known. Sthammer wished to use information about these predicates to create boundary value tests. He accomplished this by using a distance function that reported the distance between a test's current values for a predicate and what values that predicate needed to be true. Sthammer's showed that his technique preformed better then a random search. 
+
+Pargas et al proposed the used of a control-dependence graph instead of a control flow graph to guide the search of test cases. They implemented this technique in a parallelizable algorithm called GenerateData\cite{pargas8}. When tested on programs with control flow graphs of cyclomatic complexity of seven significant improvements over random search were reported\cite{pargas8}.
+
+The newest genetic algorithms attempt to make use of past information in some way. In Beuno and Jino's research they used information about past runs of the genetic algorithm to influence the creation of the initial population used in a new run\cite{limits6}. ``The results with their six small test programs were promising.''\cite{limits6} Berndt et al try to take advantage of past information in a different way. Their algorithm includes a ``fossil record that records past organisms, allowing any current fitness calculations to be influence by past generation.''\cite{limits6}
+
+Those interested in a more detailed survey are encouraged to investigate the survey done by Aljahdali et al, on which this survey is partially based on \cite{limits6}.
+
+\textbf{TODO:} add a few more recent papers
+
+
+
+
+\newpage
+\section{Our Work}
+Our approach focused on the idea of using test suites as an organism's chromosome rather than test cases. We also added some new evolutionary algorithm techniques that did not appear to be widely used in other literature for this problem. Additionally, we implemented several test programs of varying difficulty. Each of these items will now be discussed in turn.
+
+As noted above, test suites compose the population and each of these consists of multiple test cases. The number of test cases for a given test suite was decided to be the sum of the number of edges and predicates in the target control flow graph; this would ensure every test suite would be able to cover all possible branches and predicates in the target program. Each test case contains an array of values that represent input parameters to the program being tested. For the purposes of this research, input parameters were restricted to the domain of 32-bit integers.
+
+Many of the GA’s from the literature for this problem are rather simplistic \textbf{TODO: add citations}. To improve upon them we implemented and tested many techniques, including several types of fitness scaling, several base fitness functions, several mutation operators for test suites, tournament selection, several types of local optimizations, several adaptive parameters et al… Most of these were not fit enough to survive our culling. The subset that did survive includes local optimization for test cases, fitness sharing, and adaptive ranges. These are discussed in more detail in the algorithms sub-section.
+
+The CFG represents linear blocks of instructions from the target program as nodes. The edges represent possible different directions the flow of control can follow when it reaches a predicate. When implementing multiple condition coverage, one could simply expand each predicate, turning it into one predicate for each possible outcome; this has its advantages but can make tracking branch versus MCC coverage harder. Our implementation saves edges only for possible directions of control in the original target program. A separate set for predicates is kept, and each node (aka block) is responsible for tracking its predicates. This means that in our implementation, covering all edges equates to achieving 100\% branch coverage and covering all predicates equates to achieving 100\% multiple condition coverage. 
+
+
+
+\subsection{Algorithm}
+The genetic algorithm begins by executing a preprocessing step before starting the actual simulation. In this preprocessing state, the algorithm searches for promising ranges and adds them to the simulation's range set. The simulation will pull ranges from the range set any time a test case needs to be created; this includes building the initial population.
+
+
+\subsubsection{Main Simulation Loop}
+The main simulation loop has several components that need to be address. First, it must keep track of how many generations it has been since no improvement was made. The simulation uses this variable as part of the ending predicate and in determining how often test suite crossover and range adaptation is preformed.
+%============================= Main Loop Alg =====================
+\begin{figure}[h!]
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{run}(maxGens, cutPts, P_m)$
+   $gensNoImprov\leftarrow0 $
+   $currentGen\leftarrow0 $
+   
+   FindGoodRanges()
+   BuildPopulation()
+   
+   do \{
+      if($gensNoImprov >= 20$ || $(currentGen\mod 30)=0$)
+         TestSuiteCrossover($cutPts$, $P_m$)
+
+      TestCaseCrossover($cutPts$, $P_m$)
+      
+      if($(currentGen\mod 10)=0$)
+         TryLocalOptimization()
+         
+      if($P$.HasCoverageImproved())
+         $ gensNoImprov \leftarrow 0 $
+         
+      if($gensNoImprov >= 20$ || $(currentGen\mod 30)=0$)
+         AdaptRanges()
+         
+      $currentGen \leftarrow currentGen+1$
+      $gensNoImprov \leftarrow gensNoImprov+1$
+   \} while ($currentGen < maxGens$ && $P$.coverageRatio$ < 1$ && $gensNoImprov < 250$)
+   
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for main simulation loop \label{fig:simLoop}}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{run}(maxGens, cutPts, P_m)$
+   $currentGen\leftarrow0 $
+   
+   FindGoodRanges()
+   BuildPopulation()
+   
+   do \{
+      if no improvement for more then 20 generations or $currentGen$ is multiple of 30
+         TestSuiteCrossover($cutPts$, $P_m$) 
+
+      TestCaseCrossover($cutPts$, $P_m$)
+      
+      if $currentGen$ is multiple of 10
+         TryLocalOptimization()
+         
+      if no improvement for more then 20 generations or $currentGen$ is multiple of 30
+         AdaptRanges() 
+         
+      $currentGen \leftarrow currentGen+1$
+
+   \} while ending criteria has not been met
+   
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{\textbf{TODO: this is alternate version, must pick one}Algorithm for main simulation loop \label{fig:simLoopAlt}}
+\end{figure}
+
+\FloatBarrier
+\subsubsection{Range Set Initialization}
+The algorithm maintains a set of promising input parameter ranges throughout the process. Any time a new test case needs to be generated the simulation can query this range set for good ranges; the simulation can then use those ranges to determine good parameters for the new test case.
+
+A range includes a start value and an end value, as well as an array of input parameter buckets. The buckets represent all the non-overlapping sub ranges of size 25 within the range. These buckets are mapped to counts of the number of times input parameters in those buckets were part of a test case that provided unique coverage for the population. The sum of all of the buckets in a given range is considered the usefulness of that range.  
+%============================= Range Search Alg =====================
+\begin{figure}[h!]
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{FindRanges}()$  
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for learning good ranges \label{fig:ranges}}
+\end{figure}
+
+\FloatBarrier
+\subsubsection{Range Set Adaptation}
+The initial search for good ranges will probably fail to find all useful ranges; it may also think some ranges are useful which actually are not. Range adaptation aims to give the simulation of removing non-useful ranges and finding new good ranges.
+
+After several generations of no improvement, the range set is adapted based on the usefulness of its ranges. First, the range set deletes any ranges below one standard deviation usefulness. All other ranges are split into two equal sized ranges. The two ranges above and below the original range are also added to the range set; these new adjacent ranges have the same size as the original range. Finally, a new random range is added to the range set to avoid missing ranges not found during initialization or a previous range adaptation.
+
+%============================= Adapt Ranges Alg =====================
+\begin{figure}[h!]
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{AdaptRanges}()$  
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for adapting ranges \label{fig:adptRang}}
+\end{figure}
+
+\FloatBarrier
+\subsubsection{Local Optimization}
+Two simple local optimization techniques are used, but the structure of both is very similar. The LocalOptFromParameters function will take a test case and, beginning with a small neighbor size, will begin looking at other test cases in the neighborhood of the supplied one. 
+
+The LocalOptFromZero function tries to pull the test case's parameters closer to zero. This was added because values in the neighbor hood of zero, such as 1, -1, or 0, can drastically alter the flow of the program being tested, but because the search space was so large, the simulation was unable to find these values without this.
+
+Both functions explore each neighborhood several times before expanding the neighborhood. If at any point, a test case is found that covers something not in the population then it is added to the organism by replacing a duplicate test case.
+
+
+%============================= Local Opt Alg =====================
+\begin{figure}[h!]
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{TryLocalOptimization}()$
+   $org\leftarrow$$P$.Select()
+   
+   Randomaly select one of the two local opt functions and try it on a 
+      duplicate test case from $org$, store results in$ tc $
+      
+   if$ tc $ is not null replace a duplicate test case in$ org $ with tc
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for local optimization \label{fig:lcOpt}}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{LocalOptFromZero}(testCase)$
+   $neighborhoodSize\leftarrow5 $
+   for $i=1$ to $1000$ 
+      $temp\leftarrow$$testCase$
+      for $j=1$ to $150$
+         for each parameter, $p$ in temp
+            95\% of the time set $p$ to a random value in the neighbor of zero
+            5\% of the time set $p$ to $p/2$
+         end-for     
+         if $temp$ covers anything not covered in the population return$ temp $
+      end-for
+      $neighborhoodSize\leftarrow$$neighborhoodSize+5$
+   end-for
+   
+   if no improvement was ever found then return null
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for local optimization \label{fig:lcOptFZ}}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{LocalOptFromParameters}(testCase)$
+   $neighborhoodSize\leftarrow5 $
+   for $i=1$ to $500$ 
+      $temp\leftarrow$$testCase$
+      for $j=1$ to $150$
+         for each parameter, $p$ in temp
+            set p to a random value in the neighborhood of p
+         end-for     
+         if $temp$ covers anything not covered in the population return$ temp $
+      end-for
+      $neighborhoodSize\leftarrow$$neighborhoodSize+5$
+   end-for
+   
+   if no improvement was ever found then return null
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for local optimization \label{fig:lcOptFP}}
+\end{figure}
+
+\FloatBarrier
+\subsubsection{Crossover}
+Test suites and test cases each have their own crossover operator. Both operators are normal k-point crossover. Because test case crossover is more important it is attempted several times before giving up.
+
+After test suite crossover, the algorithm always replaces both parents. 
+
+%============================= Test Case Cross Alg =====================
+\begin{figure}[h!]
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{TestCaseCrossover}(cutPts, P_m)$  
+   $ts \leftarrow P.$select()
+   $tc1 \leftarrow ts.$getRandomTestCase()
+   $tc2 \leftarrow ts.$getRandomTestCase()
+   
+   for $i=0$ to $100$
+      $child1, child2 \leftarrow $crossover($tc1$, $tc2$, $cutPts$)
+      $child1.$mutate($P_m$)
+      $child2.$mutate($P_m$)
+      
+      if $child1$ is covering anything not covered by ts
+         $ts$.addTestCase($child1$)
+         break
+      else if $child2$ is covering anything not covered by ts
+         $ts$.addTestCase($child2$)
+         break
+   end-for
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for test case crossover \label{fig:tcCrossAlt}}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{TestCaseCrossover}(cutPts, P_m)$  
+   Proportionally select a test suite, $ts$, from the population
+   
+   for $i=0$ to $100$
+      From$ ts $ select two random test cases,$ tc1 $and$ tc2 $, from$ ts $
+      
+      $child1, child2 \leftarrow $crossover($tc1$, $tc2$, $cutPts$)
+      $child1.$mutate($P_m$)
+      $child2.$mutate($P_m$)
+      
+      if $child1$ is covering anything not covered by ts
+         $ts$.addTestCase($child1$)
+         break
+      else if $child2$ is covering anything not covered by ts
+         $ts$.addTestCase($child2$)
+         break
+   end-for
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for test case crossover \label{fig:tcCross}}
+\end{figure}
+
+\FloatBarrier
+\subsubsection{Fitness}
+The algorithm assigns fitness for an organism based off both its coverage and the population's coverage; this is a form of fitness sharing. Each edge has a base score associated with it. These scores are then split amongst all the test suites that cover it. The motivation for using fitness sharing is the follow: if many organisms cover a particular edge, then it must be easy to reach and thus organisms should receive less fitness for covering it; however, if only one organism in the population covers an edge, then that organism should receive a higher fitness.
+
+\FloatBarrier
+\newpage
+\section{Experimental Results}
+\subsection{Test Programs}
+
+
+
+\newpage
+\section{Discussion}
+
+\newpage
+\section{Conclusion}
+
+\subsection{Future Work}
+
+\newpage
+\begin{thebibliography}{9}
+
+\bibitem{meyers1}
+  G. Meyers,
+  \emph{The Arts of Software Testing}.
+  Hoboken, New Jersey: John Wiley \& Sons Inc.
+  2nd edition,
+   2004.
+\bibitem{model2}
+  M. Utting and B. Legeard,
+  \emph{Practical Model-Based Testing: A Tools Approach}.
+  San Francisco: Morgan-Kaufmann.
+   2007.
+\bibitem{chang3}
+  	K.-H. Chang, J. H. C. II, W. H. Carlisle and D. B. Brown
+  \emph{A framework for intelligent test data generation}.
+  Journal of Intelligent and Robotic Systems
+  vol. 5, 
+  no. 2, 
+  pp. 147-165, 
+  April 1992.
+\bibitem{sthammer4}
+  	J. Wegener, H. Sthammer, B. Jones and D. Eyres,
+  \emph{Testing real-time systems using genetic algorithms}.
+  Software Quality Journal.
+  pp. 127-135, 
+  1997.    
+\bibitem{apps5}
+  X. S, E. C, S. C, L. G. A, K. S and K. K,
+  \emph{Applications of Genetic Algorithms to Software Testing}.
+  in Internation Conference on Software Engineering and its Applications, 
+  Toulouse, 
+  1992.\textbf{TODO: fix this citation}
+  
+\bibitem{limits6}
+  	S. Aljahdali, Taif, A. Ghiduk and M. El-Telbany,
+  \emph{The limitations of genetic algorithms in software testing}.
+  in Computer Systems and Applications, 
+  Hammamet, 
+  2010. 
+\bibitem{sthammer7}
+  	B. F. Jones, H. H. Sthammer and D. Eyres,
+  \emph{Automatic structural testing using genetic algorithms}.
+  Software Engineering Journal, 
+  pp. 299-306, 
+  September 1996.  
+\bibitem{pargas8}
+  	R. P. Pargas, M. J. Harrold and R. R. Peck,
+  \emph{Test-Data Generation Using Genetic Algorithms}.
+  Journal of Software Testing, Verifcation, and Reliability, 
+  1999.      
+\end{thebibliography}
+
+\end{document}
