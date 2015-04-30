@@ -249,13 +249,12 @@ After several generations of no improvement, the range set is adapted based on t
 $\hbox{AdaptRanges}()$    
    for each range in rangeSet \{
       if ($range.usefulness < \mu-\sigma$) \{
-         delete $range$
+         remove $range$ from the range set
       \}
       
       if ($range.usefulness > \mu+\sigma$) \{
-         splitRangeIntoTwo($range$)
          addAdjacentRanges($range$)
-         delete $range$
+         splitRangeIntoTwo($range$)
       \}
    \}   
    
