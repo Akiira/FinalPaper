@@ -200,7 +200,7 @@ At the start of the algorithm the FindRanges() procedure is run to find promisin
 \medskip
 \begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
    codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-        
+$\hbox{FindRanges}()$  
    $tmpTestSuite \leftarrow$ Empty Test Suite
    $rangeSet \leftarrow$ Empty Range Set
 
@@ -227,12 +227,10 @@ At the start of the algorithm the FindRanges() procedure is run to find promisin
    \}
  
    return $rangeSet$
-        
-$\hbox{FindRanges}()$  
 \end{Verbatim}
 \hrule
 \end{center}
-\caption{Algorithm for learning good ranges \label{fig:ranges}}
+\caption{Algorithm for finding good ranges \label{fig:ranges}}
 \end{figure}
 
 \FloatBarrier
@@ -248,7 +246,7 @@ After several generations of no improvement, the range set is adapted based on t
 \medskip
 \begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
    codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-   
+$\hbox{AdaptRanges}()$    
    for each range in rangeSet \{
       if ($range.usefulness < \mu-\sigma$) \{
          delete $range$
@@ -262,8 +260,6 @@ After several generations of no improvement, the range set is adapted based on t
    \}   
    
    add new random range to the RangeSet
-        
-$\hbox{AdaptRanges}()$  
 \end{Verbatim}
 \hrule
 \end{center}
