@@ -116,6 +116,7 @@ Test programs are provided to the algorithm in the form of executable CFGs. A CF
 The following section has been broken down into the subsections for each major aspect of the proposed algorithm. These will be presented roughly in the order in which they are used by the main simulation loop. First, the main simulation loop is introduced to give context throughout the rest of the sections. The notion of input parameter ranges and the simulation's range set is then introduced, followed by a discussion of the population initialization. Fitness calculation and association with organisms is explored; then the main tools used for test case generation, including test case crossover, test case mutation, and local optimization are defined. Finally, the algorithm's perturbation operations, range set adaptation, test suite crossover, and test suite mutation are studied.
 
 \subsubsection{Main Simulation Loop}
+
 The main simulation loop has several components that need to be address. First, it must keep track of how many generations it has been since no improvement was made. The simulation uses this variable as part of the ending predicate and in determining how often test suite crossover and range adaptation is preformed.
 %============================= Main Loop Alg =====================
 
@@ -216,44 +217,10 @@ The algorithm assigns fitness for an organism based off both its coverage and th
 \subsubsection{Test Case Generation and Search} 
 \textbf{TODO:} Brief introduction to these operations
 
-\FloatBarrier
-\paragraph{Test Case Crossover and Mutation}
-Every generation, a single organism is selected proportional to its fitness. The test cases within the selected organism are then subjected to the test case crossover and mutation procedure given below. Simple k-point crossover is used. This operator maintains the values of the input parameters and swaps them around to generate the two child test cases. Each of these test cases are then subjected to small point mutations. That is with probability $P_m$, a small delta value calculated using a gaussian distribution from the orginal value is added or subtracted to get the new parameter value. Because test case crossover is more important it is attempted several times before giving up.
- 
-%============================= Test Case Cross Alg =====================
-
-\begin{figure}[h!]
-\begin{center}
-\hrule
-\medskip
-\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{TestCaseCrossover}(cutPts, P_m)$  
-   Proportionally select a test suite, $ts$, from the population
-
-   for $i=0$ to $100$
-      From$ ts $ select two random test cases,$ tc1 $and$ tc2 $
-
-      $child1, child2 \leftarrow $crossover($tc1$, $tc2$, $cutPts$)
-      $child1.$mutate($P_m$)
-      $child2.$mutate($P_m$)
-
-      if $child1$ is covering anything not covered by ts
-         $ts$.addTestCase($child1$)
-         break
-      else if $child2$ is covering anything not covered by ts
-         $ts$.addTestCase($child2$)
-         break
-   end-for
-\end{Verbatim}
-\hrule
-\end{center}
-\caption{Algorithm for test case crossover \label{fig:tcCross}}
-\end{figure}
-
 
 \FloatBarrier
-\paragraph{Local Optimization}
+\subsubsection{Local Optimization}
+
 Two simple local optimization techniques are used, but the structure of both is very similar. The LocalOptFromParameters function will take a test case and, beginning with a small neighbor size, will begin looking at other test cases in the neighborhood of the supplied one. 
 
 The LocalOptFromZero function tries to pull the test case's parameters closer to zero. This was added because values in the neighbor hood of zero, such as 1, -1, or 0, can drastically alter the flow of the program being tested, but because the search space was so large, the simulation was unable to find these values without this.
@@ -334,11 +301,8 @@ $\hbox{LocalOptFromParameters}(testCase)$
 \caption{Algorithm for local optimization \label{fig:lcOptFP}}
 \end{figure}
 
-
-
-
 \FloatBarrier
-\subsubsection{Perturbation Operations}
+
 \paragraph{Adapting the Range Set} The initial search for good ranges will probably fail to find all useful ranges; it may also think some ranges are useful which actually are not. Range adaptation aims to give the simulation the ability to remove non-useful ranges, as well as focus in on the most fruitful ranges.
 
 After several generations of no improvement, the range set is adapted based on the usefulness of its ranges. First, the range set deletes any ranges below one standard deviation usefulness. All ranges above one standard deviation usefulness are split into two equal sized ranges, with the input parameter buckets copied accordingly to the new ranges. The two ranges immediately above and below the original range are also added to the range set. These new adjacent ranges have the same size as the original range and their usefulness values are set to half that of the original range in order to prevent them being completely ignored. Finally, the range set adds a new random range into its pool to avoid missing ranges not found during initialization or a previous range adaptation.
@@ -366,14 +330,49 @@ $\hbox{AdaptRanges}()$
 \end{center}
 \caption{Algorithm for adapting ranges \label{fig:adptRang}}
 \end{figure}
+\FloatBarrier
 
-\paragraph{Test Suite Crossover and Mutation} 
-Test suites are normal k-point crossover. After test suite crossover, the algorithm always replaces both parents. 
+\subsubsection{Crossover}
+
+Test suites and test cases each have their own crossover operator. Both operators use normal k-point crossover and fitness proportional selection. However, the test case operator simply selects one test suite and then selects test cases at random from that test suite. The simulation attempts test case crossover several times before giving up; this is to increase the chance of finding a good parameter combinations, assuming the range search has narrowed in on good ranges. After test suite crossover, the algorithm always replaces both parents, while test case crossover only replaces a test case if it offers new coverage for a test suite.
+
+Mutation is also executed during this step. The simulation uses point mutations for both, each with probability $P_m$. For test suites mutation involves simply creating a new test case, for test cases it involves changing a parameter to a new value pick using a normal distribution around the parameters original value. 
+
+%============================= Test Case Cross Alg =====================
+\begin{figure}[h!]
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{TestCaseCrossover}(cutPts, P_m)$  
+   Proportionally select a test suite, $ts$, from the population
+
+   for $i=0$ to $100$
+      From$ ts $ select two random test cases,$ tc1 $and$ tc2 $
+
+      $child1, child2 \leftarrow $crossover($tc1$, $tc2$, $cutPts$)
+      $child1.$mutate($P_m$)
+      $child2.$mutate($P_m$)
+
+      if $child1$ is covering anything not covered by ts
+         $ts$.addTestCase($child1$)
+         break
+      else if $child2$ is covering anything not covered by ts
+         $ts$.addTestCase($child2$)
+         break
+   end-for
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for test case crossover \label{fig:tcCross}}
+\end{figure}
 
 
 
 \FloatBarrier
 \newpage
+
 \section{Experimental Results}
 \subsection{Test Programs}
 
