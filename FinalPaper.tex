@@ -202,28 +202,28 @@ At the start of the algorithm the FindGoodRanges() procedure is run to find prom
 \begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
    codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
 $\hbox{FindGoodRanges}()$  
-   $tmpTestSuite \leftarrow$ Empty Test Suite
    $rangeSet \leftarrow$ Empty Range Set
 
    for ( $size \in \{5000, 2500\}$ ) \{
-      $startPos \leftarrow -size/2, endNeg \leftarrow size/2$
+      $posStart \leftarrow -size/2, negStart \leftarrow size/2$
 
-      while $startPos + size < max\_int$ and $endNeg > min\_int$ \{
-         $posRange \leftarrow$ [startPos, startPos + size]
-         $negRange \leftarrow$ [endNeg - size, endNeg]
+      while $posStart + size < max\_int$ and $negStart - size > min\_int$ \{
+         $posRange \leftarrow$ [posStart, posStart + size]
+         $negRange \leftarrow$ [negStart, negStart - size]
 
          $posTC \leftarrow$ test case in posRange
          $negTC \leftarrow$ test case in negRange
 
-         if (posTC covers anything new in tmpTestSuite) \{
-            add posTC to tmpTestSuite
+         if (posTC covers anything new) \{
             add posRange to rangeSet
          \}
 
-         if (negTC covers anything new in tmpTestSuite) \{
-            add negTC to tmpTestSuite
+         if (negTC covers anything new) \{
             add negRange to rangeSet
          \}
+         
+         $posStart \leftarrow posStart + size$
+         $negStart \leftarrow negStart - size$
       \}
    \}
  
