@@ -3,7 +3,7 @@
 \usepackage{fancyvrb}
 \usepackage[bf]{caption2}
 \usepackage{amssymb,amsmath}
-
+\usepackage{comment}
 \begin{document}
 \pagestyle{headings}
 \mainmatter
@@ -70,7 +70,7 @@ Genetic algorithms represent a third, and perhaps more interesting, method of au
 \section{Problem Definition}
 In high-level terms the problem succinctly presents itself as such: automatically generate good tests for a given program; but this leaves several open questions, such as ``what information if any can be gotten from the program to help design the tests?'' and ``what constitutes a good test?'' The field of structural testing will help answer both of these questions.
 
-In any given program there are multiple paths in which flow of control can traverse; these can be represented by a control flow graph; predicates, i.e. conditional statements in the code, determine which path to take [1]. Structural testing encompasses the use of such information to design tests [1].
+In any given program there are multiple paths in which flow of control can traverse; these can be represented by a control flow graph (CFG); predicates, i.e. conditional statements in the code, determine which path to take [1]. Structural testing encompasses the use of such information to design tests [1].
 
 When evaluating a test's coverage, the predicates, and the flow of control they affect, play an important role. Consider the following simple metric: A test suite should cover every possible path in a program at least once. Using the control flow graph one can easily evaluate the quality of tests against this metric. A good test suite then becomes one in which most if not all of the possible paths are taken at least once. Structural testing uses this metric, and similar metrics, as its primary evaluation method for tests.
 
@@ -101,138 +101,159 @@ Our approach focused on the idea of using test suites as an organism's chromosom
 
 As noted above, test suites compose the population and each of these consists of multiple test cases. The number of test cases for a given test suite was decided to be the sum of the number of edges and predicates in the target control flow graph; this would ensure every test suite would be able to cover all possible branches and predicates in the target program. Each test case contains an array of values that represent input parameters to the program being tested. For the purposes of this research, input parameters were restricted to the domain of 32-bit integers.
 
-Many of the GA’s from the literature for this problem are rather simplistic \textbf{TODO: add citations}. To improve upon them we implemented and tested many techniques, including several types of fitness scaling, several base fitness functions, several mutation operators for test suites, tournament selection, several types of local optimizations, several adaptive parameters et al… Most of these were not fit enough to survive our culling. The subset that did survive includes local optimization for test cases, fitness sharing, and adaptive ranges. These are discussed in more detail in the algorithms sub-section.
+Although each organism in the GA is a test suite, the goal is not to converge the population towards a single test suite containing the maximal possible coverage. As the algorithm discovers test cases that offer new coverage, they are added to a final test suite maintained external to the population. This incrementally building of the final test suite, ensures that it exhibits all branch and multiple condition coverage at the end of the simulation. The organisms are then used as breeding grounds for test cases and are the vessels within which the main test case search is performed. 
 
-The CFG represents linear blocks of instructions from the target program as nodes. The edges represent possible different directions the flow of control can follow when it reaches a predicate. When implementing multiple condition coverage, one could simply expand each predicate, turning it into one predicate for each possible outcome; this has its advantages but can make tracking branch versus MCC coverage harder. Our implementation saves edges only for possible directions of control in the original target program. A separate set for predicates is kept, and each node (aka block) is responsible for tracking its predicates. This means that in our implementation, covering all edges equates to achieving 100\% branch coverage and covering all predicates equates to achieving 100\% multiple condition coverage. 
+Many of the GA’s from the literature for this problem are rather simplistic \textbf{TODO: add citations}. To improve upon them we implemented and tested many techniques, including several types of fitness scaling, several base fitness functions, several mutation operators for test suites, tournament selection, several types of local optimizations, several adaptive parameters et al… Most of these were not fit enough to survive our culling. The subset that did survive includes local optimization for test cases, fitness sharing, and adaptive ranges. These are discussed in more detail in the algorithm sub-section.
 
-
+\textbf{TODO: Is the sentence about expanding predicates necessary? Also "Our implementation saves only..." sounds like were only storing edges not predicates, until you read the following sentence... Reword this to be clearer.}
+Test programs are provided to the algorithm in the form of executable CFGs. A CFG represents linear blocks of instructions from the target program as nodes. The edges represent possible different directions the flow of control can follow when it reaches a predicate.  When implementing multiple condition coverage, one could simply expand each predicate, turning it into one predicate for each possible outcome; this has its advantages but can make tracking branch versus MCC coverage harder. Our implementation saves edges only for possible directions of control in the original target program. A separate set for predicates is kept, and each node (aka block) is responsible for tracking its predicates. This means that in our implementation, covering all edges equates to achieving 100\% branch coverage and covering all predicates equates to achieving 100\% multiple condition coverage. 
 
 \subsection{Algorithm}
-The genetic algorithm begins by executing a preprocessing step before starting the actual simulation. In this preprocessing state, the algorithm searches for promising ranges and adds them to the simulation's range set. The simulation will pull ranges from the range set any time a test case needs to be created; this includes building the initial population.
 
+The following section has been broken down into the subsections for each major aspect of the proposed algorithm. These will be presented generally in the temporal order in which they are used by the main simulation loop below. First the main simulation loop is introduced to give context throughout the rest of the sections. Next the notion of input parameter ranges and the simulation's range set will be introduced. The method used to initialize the population with test suites will be discussed, followed by a discussion of how fitness is calculated and associated with organisms. The main tools used for test case generation will be defined, including test case crossover, test case mutation, and local optimization. Finally, the algorithm's perturbation operations, range set adaptation, test suite crossover, and test suite mutation will be defined.
 
 \subsubsection{Main Simulation Loop}
 The main simulation loop has several components that need to be address. First, it must keep track of how many generations it has been since no improvement was made. The simulation uses this variable as part of the ending predicate and in determining how often test suite crossover and range adaptation is preformed.
 %============================= Main Loop Alg =====================
+
+\begin{figure}[h!]
+	\begin{center}
+		\hrule
+		\medskip
+		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{run}(maxGens, numCutPoints, P_m)$
+$currentGen\leftarrow0 $
+
+FindGoodRanges()
+BuildPopulation()
+
+do \{
+    updatePopulationsFitness()
+
+    TestCaseCrossoverAndMutation($numCutPts$, $P_m$)
+
+    if $currentGen$ is multiple of 10
+        TryLocalOptimization()
+
+    if no improvement for more than 20 generations or $currentGen$ is multiple of 30 \{
+        AdaptRanges() 
+        TestSuiteCrossoverAndMutation($numCutPts$, $P_m$) 
+    \}
+
+    $currentGen \leftarrow currentGen+1$
+		
+\} while ending criteria has not been met
+		
+		\end{Verbatim}
+		\hrule
+	\end{center}
+	\caption{Algorithm for main simulation loop \label{fig:simLoopAlt}}
+\end{figure}
+
+\begin{comment}
+I like the other one better.
 \begin{figure}[h!]
 \begin{center}
 \hrule
 \medskip
 \begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
 $\hbox{run}(maxGens, cutPts, P_m)$
-   $gensNoImprov\leftarrow0 $
-   $currentGen\leftarrow0 $
-   
-   FindGoodRanges()
-   BuildPopulation()
-   
-   do \{
-      if($gensNoImprov >= 20$ || $(currentGen\mod 30)=0$)
-         TestSuiteCrossover($cutPts$, $P_m$)
+$gensNoImprov\leftarrow0 $
+$currentGen\leftarrow0 $
 
-      TestCaseCrossover($cutPts$, $P_m$)
-      
-      if($(currentGen\mod 10)=0$)
-         TryLocalOptimization()
-         
-      if($P$.HasCoverageImproved())
-         $ gensNoImprov \leftarrow 0 $
-         
-      if($gensNoImprov >= 20$ || $(currentGen\mod 30)=0$)
-         AdaptRanges()
-         
-      $currentGen \leftarrow currentGen+1$
-      $gensNoImprov \leftarrow gensNoImprov+1$
-   \} while ($currentGen < maxGens$ && $P$.coverageRatio$ < 1$ && $gensNoImprov < 250$)
-   
+FindGoodRanges()
+BuildPopulation()
+
+do \{
+if($gensNoImprov >= 20$ || $(currentGen\mod 30)=0$)
+TestSuiteCrossover($cutPts$, $P_m$)
+
+TestCaseCrossover($cutPts$, $P_m$)
+
+if($(currentGen\mod 10)=0$)
+TryLocalOptimization()
+
+if($P$.HasCoverageImproved())
+$ gensNoImprov \leftarrow 0 $
+
+if($gensNoImprov >= 20$ || $(currentGen\mod 30)=0$)
+AdaptRanges()
+
+$currentGen \leftarrow currentGen+1$
+$gensNoImprov \leftarrow gensNoImprov+1$
+\} while ($currentGen < maxGens$ && $P$.coverageRatio$ < 1$ && $gensNoImprov < 250$)
+
 \end{Verbatim}
 \hrule
 \end{center}
 \caption{Algorithm for main simulation loop \label{fig:simLoop}}
 \end{figure}
+\end{comment}
 
-\begin{figure}[h!]
-\begin{center}
-\hrule
-\medskip
-\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{run}(maxGens, cutPts, P_m)$
-   $currentGen\leftarrow0 $
-   
-   FindGoodRanges()
-   BuildPopulation()
-   
-   do \{
-      if no improvement for more then 20 generations or $currentGen$ is multiple of 30
-         TestSuiteCrossover($cutPts$, $P_m$) 
+%============================= End Main Loop Alg =====================
 
-      TestCaseCrossover($cutPts$, $P_m$)
-      
-      if $currentGen$ is multiple of 10
-         TryLocalOptimization()
-         
-      if no improvement for more then 20 generations or $currentGen$ is multiple of 30
-         AdaptRanges() 
-         
-      $currentGen \leftarrow currentGen+1$
+\subsubsection{Initializing the Range Set}
 
-   \} while ending criteria has not been met
-   
-\end{Verbatim}
-\hrule
-\end{center}
-\caption{\textbf{TODO: this is alternate version, must pick one}Algorithm for main simulation loop \label{fig:simLoopAlt}}
-\end{figure}
+The algorithm begins by executing a preprocessing procedure termed FindGoodRanges(). In this preprocessing step, the algorithm searches for promising ranges and adds them to the simulation's range set. A range includes a start value and an end value, as well as an array of input parameter buckets. The buckets are non-overlapping partitions of size 25 within the range, e.g. the range [0, 75] would contain the following array of buckets [ [0, 24], [25, 49], [50, 74] ]. These buckets are mapped to counts of the number of times input parameters in those buckets were part of a test case that provided unique coverage for the population. The sum of all of the buckets in a given range is considered the usefulness of that range. As we will see the algorithm actively maintains and adapts this range set based on information learned regarding the usefulness of its constituent ranges. The GA pulls ranges from the range set any time a test case needs to be created, and if a generated test case offers new coverage to the final test suite, the buckets within which the test case's parameters fall are incremented accordingly.
 
-\FloatBarrier
-\subsubsection{Range Set Initialization}
-The algorithm maintains a set of promising input parameter ranges throughout the process. Any time a new test case needs to be generated the simulation can query this range set for good ranges; the simulation can then use those ranges to determine good parameters for the new test case.
-
-\textbf{TODO: reword 2nd sentence after discussing buckets with austin}
-A range includes a start value and an end value, as well as an array of input parameter buckets. The buckets represent all the non-overlapping sub ranges of size 25 within the range. These buckets are mapped to counts of the number of times input parameters in those buckets were part of a test case that provided unique coverage for the population. The sum of all of the buckets in a given range is considered the usefulness of that range.  
+\textbf{TODO:} Merge these two descriptions to come up with one cohesive paragraph that introduces ranges and the range set. I considered just deleting the paragraph below but we'll discuss it first.
 
 At the start of the algorithm the FindGoodRanges() procedure is run to find promising ranges of input values and add them to the global range set. This procedure loops, starting with a range around 0 and extending in both directions towards max and min integer, generating a single test case from each range. If a test case provides coverage that hasn't yet been seen during this initial procedure, its corresponding range is added to the global range set. This procedure can be repeated using various range sizes, which in some cases enabled to algorithm to find additional coverage and ranges not found in previous iterations. However this is an expensive procedure whose goal is to simply identify promising ranges that help focus the genetic algorithm's exploration. Thus for the purposes of the current research we found that performing two iterations, first with a range size of 5000, then with a range size of 2500 provided a good set of initial seed ranges for the genetic algorithm to utilize, while not taking too long to complete.
+
 %============================= Range Search Alg =====================
 \begin{figure}[h!]
-\begin{center}
-\hrule
-\medskip
-\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-   codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{FindGoodRanges}()$  
-   $rangeSet \leftarrow$ Empty Range Set
-
-   for ( $size \in \{5000, 2500\}$ ) \{
-      $posStart \leftarrow -size/2, negStart \leftarrow size/2$
-
-      while $posStart + size < max\_int$ and $negStart - size > min\_int$ \{
-         $posRange \leftarrow$ [posStart, posStart + size]
-         $negRange \leftarrow$ [negStart, negStart - size]
-
-         $posTC \leftarrow$ test case in posRange
-         $negTC \leftarrow$ test case in negRange
-
-         if (posTC covers anything new) \{
-            add posRange to rangeSet
-         \}
-
-         if (negTC covers anything new) \{
-            add negRange to rangeSet
-         \}
-         
-         $posStart \leftarrow posStart + size$
-         $negStart \leftarrow negStart - size$
-      \}
-   \}
- 
-   return $rangeSet$
-\end{Verbatim}
-\hrule
-\end{center}
-\caption{Algorithm for finding good ranges \label{fig:ranges}}
+	\begin{center}
+		\hrule
+		\medskip
+		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+		$\hbox{FindGoodRanges}()$  
+		$rangeSet \leftarrow$ Empty Range Set
+		
+		for ( $size \in \{5000, 2500\}$ ) \{
+		$posStart \leftarrow -size/2, negStart \leftarrow size/2$
+		
+		while $posStart + size < max\_int$ and $negStart - size > min\_int$ \{
+		$posRange \leftarrow$ [posStart, posStart + size]
+		$negRange \leftarrow$ [negStart, negStart - size]
+		
+		$posTC \leftarrow$ test case in posRange
+		$negTC \leftarrow$ test case in negRange
+		
+		if (posTC covers anything new) \{
+		add posRange to rangeSet
+		\}
+		
+		if (negTC covers anything new) \{
+		add negRange to rangeSet
+		\}
+		
+		$posStart \leftarrow posStart + size$
+		$negStart \leftarrow negStart - size$
+		\}
+		\}
+		
+		return $rangeSet$
+		\end{Verbatim}
+		\hrule
+	\end{center}
+	\caption{Algorithm for finding good ranges \label{fig:ranges}}
 \end{figure}
+\FloatBarrier
+
+
+Upon initialization each organism uses only a single range from the simulation's range set to generate all its test cases. The main test case search occurs by crossing over and mutating test cases within organisms, as well as applying local optimization heuristics that manipulate or replace an organism's test cases. So the algorithm begins by thoroughly searched the space of possible test cases composed of parameters from singular ranges of the range set. After many generations of no improvements using test case crossover and local optimization, the algorithm  performs two key perturbation procedures. First the range set adapts itself based on information learned regarding the fruitfulness of its constituent ranges. Then test suite crossover and mutation are applied to mix up the available input parameters inside of test suites. These perturbation procedures will be described in more detail below, but the idea is to  attempts performs crossover and mutation on test suites. Instead, the algorithm tries to evolve a population of test suites with diverse coverage of the control flow graph, such that the union of the coverage across all test cases in all test suites of the population is maximal. 
+
+Three levels of coverage metadata are maintained by the algorithm for the purposes of fitness calculation. First each test case is assigned coverage by running it against the CFG. Each test suite then maintains counts of the number of times its constituent test cases covered each edge and predicate. Finally the population maintains sums of the coverage counts across all of the test suites.
+
+\FloatBarrier
+\subsubsection{Fitness}
+The algorithm assigns fitness for an organism based off both its coverage and the population's coverage; this is a form of fitness sharing. Each edge has a base score associated with it. These scores are then split amongst all the test suites that cover it. The motivation for using fitness sharing is the follow: if many organisms cover a particular edge, then it must be easy to reach and thus organisms should receive less fitness for covering it; however, if only one organism in the population covers an edge, then that organism should receive a higher fitness.
+
+
+
 
 \FloatBarrier
 \subsubsection{Range Set Adaptation}
@@ -413,9 +434,7 @@ $\hbox{TestCaseCrossover}(cutPts, P_m)$
 \caption{Algorithm for test case crossover \label{fig:tcCross}}
 \end{figure}
 
-\FloatBarrier
-\subsubsection{Fitness}
-The algorithm assigns fitness for an organism based off both its coverage and the population's coverage; this is a form of fitness sharing. Each edge has a base score associated with it. These scores are then split amongst all the test suites that cover it. The motivation for using fitness sharing is the follow: if many organisms cover a particular edge, then it must be easy to reach and thus organisms should receive less fitness for covering it; however, if only one organism in the population covers an edge, then that organism should receive a higher fitness.
+
 
 \FloatBarrier
 \newpage
