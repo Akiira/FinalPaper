@@ -117,80 +117,39 @@ The main simulation loop has several components that need to be address. First, 
 %============================= Main Loop Alg =====================
 
 \begin{figure}[h!]
-	\begin{center}
-		\hrule
-		\medskip
-		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{run}(maxGens, numCutPoints, P_m)$
-$currentGen\leftarrow0 $
-
-FindGoodRanges()
-BuildPopulation()
-
-do \{
-    updatePopulationsFitness()
-
-    TestCaseCrossoverAndMutation($numCutPts$, $P_m$)
-
-    if $currentGen$ is multiple of 10
-        TryLocalOptimization()
-
-    if no improvement for more than 20 generations or $currentGen$ is multiple of 30 \{
-        AdaptRanges() 
-        TestSuiteCrossoverAndMutation($numCutPts$, $P_m$) 
-    \}
-
-    $currentGen \leftarrow currentGen+1$
-		
-\} while ending criteria has not been met
-		
-		\end{Verbatim}
-		\hrule
-	\end{center}
-	\caption{Algorithm for main simulation loop \label{fig:simLoopAlt}}
-\end{figure}
-
-\begin{comment}
-I like the other one better.
-\begin{figure}[h!]
 \begin{center}
 \hrule
 \medskip
 \begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
 codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{run}(maxGens, cutPts, P_m)$
-$gensNoImprov\leftarrow0 $
-$currentGen\leftarrow0 $
+$\hbox{run}(maxGens, numCutPoints, P_m)$
+   $currentGen\leftarrow0 $
 
-FindGoodRanges()
-BuildPopulation()
+   FindGoodRanges()
+   BuildPopulation()
 
-do \{
-if($gensNoImprov >= 20$ || $(currentGen\mod 30)=0$)
-TestSuiteCrossover($cutPts$, $P_m$)
+   do \{
+      updatePopulationsFitness()
 
-TestCaseCrossover($cutPts$, $P_m$)
+      TestCaseCrossoverAndMutation($numCutPts$, $P_m$)
 
-if($(currentGen\mod 10)=0$)
-TryLocalOptimization()
+      if $currentGen$ is multiple of 10
+         TryLocalOptimization()
 
-if($P$.HasCoverageImproved())
-$ gensNoImprov \leftarrow 0 $
+      if no improvement for more than 20 generations or $currentGen$ is multiple of 30 \{
+         AdaptRanges() 
+         TestSuiteCrossoverAndMutation($numCutPts$, $P_m$) 
+      \}
 
-if($gensNoImprov >= 20$ || $(currentGen\mod 30)=0$)
-AdaptRanges()
-
-$currentGen \leftarrow currentGen+1$
-$gensNoImprov \leftarrow gensNoImprov+1$
-\} while ($currentGen < maxGens$ && $P$.coverageRatio$ < 1$ && $gensNoImprov < 250$)
-
+      $currentGen \leftarrow currentGen+1$
+		
+   \} while ending criteria has not been met
+	
 \end{Verbatim}
 \hrule
 \end{center}
-\caption{Algorithm for main simulation loop \label{fig:simLoop}}
+\caption{Algorithm for main simulation loop \label{fig:simLoopAlt}}
 \end{figure}
-\end{comment}
 
 %============================= End Main Loop Alg =====================
 
@@ -204,42 +163,42 @@ At the start of the algorithm the FindGoodRanges() procedure is run to find prom
 
 %============================= Range Search Alg =====================
 \begin{figure}[h!]
-	\begin{center}
-		\hrule
-		\medskip
-		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-		$\hbox{FindGoodRanges}()$  
-		$rangeSet \leftarrow$ Empty Range Set
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{FindGoodRanges}()$  
+   $rangeSet \leftarrow$ Empty Range Set
 		
-		for ( $size \in \{5000, 2500\}$ ) \{
-		$posStart \leftarrow -size/2, negStart \leftarrow size/2$
+   for ( $size \in \{5000, 2500\}$ ) \{
+      $posStart \leftarrow -size/2, negStart \leftarrow size/2$
 		
-		while $posStart + size < max\_int$ and $negStart - size > min\_int$ \{
-		$posRange \leftarrow$ [posStart, posStart + size]
-		$negRange \leftarrow$ [negStart, negStart - size]
+      while $posStart + size < max\_int$ and $negStart - size > min\_int$ \{
+         $posRange \leftarrow$ [posStart, posStart + size]
+         $negRange \leftarrow$ [negStart, negStart - size]
 		
-		$posTC \leftarrow$ test case in posRange
-		$negTC \leftarrow$ test case in negRange
+         $posTC \leftarrow$ test case in posRange
+         $negTC \leftarrow$ test case in negRange
 		
-		if (posTC covers anything new) \{
-		add posRange to rangeSet
-		\}
+         if (posTC covers anything new) \{
+            add posRange to rangeSet
+         \}
 		
-		if (negTC covers anything new) \{
-		add negRange to rangeSet
-		\}
+         if (negTC covers anything new) \{
+            add negRange to rangeSet
+         \}
 		
-		$posStart \leftarrow posStart + size$
-		$negStart \leftarrow negStart - size$
-		\}
-		\}
+         $posStart \leftarrow posStart + size$
+         $negStart \leftarrow negStart - size$
+      \}
+   \}
 		
-		return $rangeSet$
-		\end{Verbatim}
-		\hrule
-	\end{center}
-	\caption{Algorithm for finding good ranges \label{fig:ranges}}
+   return $rangeSet$
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for finding good ranges \label{fig:ranges}}
 \end{figure}
 \FloatBarrier
 
@@ -265,63 +224,33 @@ Every generation, a single organism is selected proportional to its fitness. The
 %============================= Test Case Cross Alg =====================
 
 \begin{figure}[h!]
-	\begin{center}
-		\hrule
-		\medskip
-		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
 		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
 $\hbox{TestCaseCrossover}(cutPts, P_m)$  
-    Proportionally select a test suite, $ts$, from the population
+   Proportionally select a test suite, $ts$, from the population
 
-    for $i=0$ to $100$
-        From$ ts $ select two random test cases,$ tc1 $and$ tc2 $, from$ ts $
+   for $i=0$ to $100$
+      From$ ts $ select two random test cases,$ tc1 $and$ tc2 $
 
-        $child1, child2 \leftarrow $crossover($tc1$, $tc2$, $cutPts$)
-        $child1.$mutate($P_m$)
-        $child2.$mutate($P_m$)
+      $child1, child2 \leftarrow $crossover($tc1$, $tc2$, $cutPts$)
+      $child1.$mutate($P_m$)
+      $child2.$mutate($P_m$)
 
-        if $child1$ is covering anything not covered by ts
-            $ts$.addTestCase($child1$)
-            break
-        else if $child2$ is covering anything not covered by ts
-            $ts$.addTestCase($child2$)
-            break
-    end-for
-		\end{Verbatim}
-		\hrule
-	\end{center}
-	\caption{Algorithm for test case crossover \label{fig:tcCross}}
+      if $child1$ is covering anything not covered by ts
+         $ts$.addTestCase($child1$)
+         break
+      else if $child2$ is covering anything not covered by ts
+         $ts$.addTestCase($child2$)
+         break
+      end-for
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for test case crossover \label{fig:tcCross}}
 \end{figure}
-\begin{comment}
-\begin{figure}[h!]
-	\begin{center}
-		\hrule
-		\medskip
-		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-		$\hbox{TestCaseCrossover}(cutPts, P_m)$  
-		$ts \leftarrow P.$select()
-		$tc1 \leftarrow ts.$getRandomTestCase()
-		$tc2 \leftarrow ts.$getRandomTestCase()
-		
-		for $i=0$ to $100$
-		$child1, child2 \leftarrow $crossover($tc1$, $tc2$, $cutPts$)
-		$child1.$mutate($P_m$)
-		$child2.$mutate($P_m$)
-		
-		if $child1$ is covering anything not covered by ts
-		$ts$.addTestCase($child1$)
-		break
-		else if $child2$ is covering anything not covered by ts
-		$ts$.addTestCase($child2$)
-		break
-		end-for
-		\end{Verbatim}
-		\hrule
-	\end{center}
-	\caption{Algorithm for test case crossover \label{fig:tcCrossAlt}}
-\end{figure}
-\end{comment}
 
 
 \FloatBarrier
@@ -335,75 +264,75 @@ Both functions explore each neighborhood several times before expanding the neig
 
 %============================= Local Opt Alg =====================
 \begin{figure}[h!]
-	\begin{center}
-		\hrule
-		\medskip
-		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-		$\hbox{TryLocalOptimization}()$
-		$org\leftarrow$$P$.Select()
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{TryLocalOptimization}()$
+      $org\leftarrow$$P$.Select()
 		
-		Randomaly select one of the two local opt functions and try it on a 
-		duplicate test case from $org$, store results in$ tc $
+      Randomaly select one of the two local opt functions and try it on a 
+      duplicate test case from $org$, store results in$ tc $
 		
-		if$ tc $ is not null replace a duplicate test case in$ org $ with tc
-		\end{Verbatim}
-		\hrule
-	\end{center}
-	\caption{Algorithm for local optimization \label{fig:lcOpt}}
+      if$ tc $ is not null replace a duplicate test case in$ org $ with tc
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for local optimization \label{fig:lcOpt}}
 \end{figure}
 
 \begin{figure}[h!]
-	\begin{center}
-		\hrule
-		\medskip
-		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-		$\hbox{LocalOptFromZero}(testCase)$
-		$neighborhoodSize\leftarrow5 $
-		for $i=1$ to $1000$ 
-		$temp\leftarrow$$testCase$
-		for $j=1$ to $150$
-		for each parameter, $p$ in temp
-		95\% of the time set $p$ to a random value in the neighbor of zero
-		5\% of the time set $p$ to $p/2$
-		end-for     
-		if $temp$ covers anything not covered in the population return$ temp $
-		end-for
-		$neighborhoodSize\leftarrow$$neighborhoodSize+5$
-		end-for
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{LocalOptFromZero}(testCase)$
+   $neighborhoodSize\leftarrow5 $
+   for $i=1$ to $1000$ 
+      $temp\leftarrow$$testCase$
+      for $j=1$ to $150$
+         for each parameter, $p$ in temp
+            95\% of the time set $p$ to a random value in the neighbor of zero
+            5\% of the time set $p$ to $p/2$
+         end-for     
+         if $temp$ covers anything not covered in the population return$ temp $
+      end-for
+      $neighborhoodSize\leftarrow$$neighborhoodSize+5$
+   end-for
 		
-		if no improvement was ever found then return null
-		\end{Verbatim}
-		\hrule
-	\end{center}
-	\caption{Algorithm for local optimization \label{fig:lcOptFZ}}
+   if no improvement was ever found then return null
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for local optimization \label{fig:lcOptFZ}}
 \end{figure}
 
 \begin{figure}[h!]
-	\begin{center}
-		\hrule
-		\medskip
-		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-		$\hbox{LocalOptFromParameters}(testCase)$
-		$neighborhoodSize\leftarrow5 $
-		for $i=1$ to $500$ 
-		$temp\leftarrow$$testCase$
-		for $j=1$ to $150$
-		for each parameter, $p$ in temp
-		set p to a random value in the neighborhood of p
-		end-for     
-		if $temp$ covers anything not covered in the population return$ temp $
-		end-for
-		$neighborhoodSize\leftarrow$$neighborhoodSize+5$
-		end-for
-		
-		if no improvement was ever found then return null
-		\end{Verbatim}
-		\hrule
-	\end{center}
-	\caption{Algorithm for local optimization \label{fig:lcOptFP}}
+\begin{center}
+\hrule
+\medskip
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{LocalOptFromParameters}(testCase)$
+   $neighborhoodSize\leftarrow5 $
+   for $i=1$ to $500$ 
+      $temp\leftarrow$$testCase$
+      for $j=1$ to $150$
+         for each parameter, $p$ in temp
+            set p to a random value in the neighborhood of p
+         end-for     
+         if $temp$ covers anything not covered in the population return$ temp $
+      end-for
+      $neighborhoodSize\leftarrow$$neighborhoodSize+5$
+   end-for
+   
+   if no improvement was ever found then return null
+\end{Verbatim}
+\hrule
+\end{center}
+\caption{Algorithm for local optimization \label{fig:lcOptFP}}
 \end{figure}
 
 
