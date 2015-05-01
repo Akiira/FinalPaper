@@ -110,7 +110,7 @@ Test programs are provided to the algorithm in the form of executable CFGs. A CF
 
 \subsection{Algorithm}
 
-The following section has been broken down into the subsections for each major aspect of the proposed algorithm. These will be presented generally in the temporal order in which they are used by the main simulation loop below. First the main simulation loop is introduced to give context throughout the rest of the sections. Next the notion of input parameter ranges and the simulation's range set will be introduced. The method used to initialize the population with test suites will be discussed, followed by a discussion of how fitness is calculated and associated with organisms. The main tools used for test case generation will be defined, including test case crossover, test case mutation, and local optimization. Finally, the algorithm's perturbation operations, range set adaptation, test suite crossover, and test suite mutation will be defined.
+The following section has been broken down into the subsections for each major aspect of the proposed algorithm. These will be presented roughly in the temporal order in which they are used by the main simulation loop. First the main simulation loop is introduced to give context throughout the rest of the sections. The notion of input parameter ranges and the simulation's range set is then introduced, followed by a discussion of the population initialization. Fitness calculation and association with organisms is explored. Then the main tools used for test case generation, including test case crossover, test case mutation, and local optimization are defined. Finally, the algorithm's perturbation operations, range set adaptation, test suite crossover, and test suite mutation are studied.
 
 \subsubsection{Main Simulation Loop}
 The main simulation loop has several components that need to be address. First, it must keep track of how many generations it has been since no improvement was made. The simulation uses this variable as part of the ending predicate and in determining how often test suite crossover and range adaptation is preformed.
@@ -243,21 +243,175 @@ At the start of the algorithm the FindGoodRanges() procedure is run to find prom
 \end{figure}
 \FloatBarrier
 
+\subsubsection{Initializing the Population}
 
-Upon initialization each organism uses only a single range from the simulation's range set to generate all its test cases. The main test case search occurs by crossing over and mutating test cases within organisms, as well as applying local optimization heuristics that manipulate or replace an organism's test cases. So the algorithm begins by thoroughly searched the space of possible test cases composed of parameters from singular ranges of the range set. After many generations of no improvements using test case crossover and local optimization, the algorithm  performs two key perturbation procedures. First the range set adapts itself based on information learned regarding the fruitfulness of its constituent ranges. Then test suite crossover and mutation are applied to mix up the available input parameters inside of test suites. These perturbation procedures will be described in more detail below, but the idea is to  attempts performs crossover and mutation on test suites. Instead, the algorithm tries to evolve a population of test suites with diverse coverage of the control flow graph, such that the union of the coverage across all test cases in all test suites of the population is maximal. 
+During initialization each organism in the population uses only a single range from the simulation's range set to generate all its test cases. The main test case search occurs by crossing over and mutating test cases within organisms, as well as applying local optimization heuristics that manipulate or replace an organism's test cases. So the algorithm begins by thoroughly searched the space of possible test cases composed of parameters from singular ranges of the range set. After many generations of no improvements using test case crossover and local optimization, the algorithm  performs two key perturbation procedures. First the range set adapts itself based on information learned regarding the fruitfulness of its constituent ranges. Then test suite crossover and mutation are applied to mix up the available input parameters inside of test suites. These perturbation procedures will be described in more detail below, but the idea is to  attempts performs crossover and mutation on test suites. Instead, the algorithm tries to evolve a population of test suites with diverse coverage of the control flow graph, such that the union of the coverage across all test cases in all test suites of the population is maximal. 
 
+\subsubsection{Fitness}
+
+\paragraph{Coverage Metadata}
 Three levels of coverage metadata are maintained by the algorithm for the purposes of fitness calculation. First each test case is assigned coverage by running it against the CFG. Each test suite then maintains counts of the number of times its constituent test cases covered each edge and predicate. Finally the population maintains sums of the coverage counts across all of the test suites.
 
-\FloatBarrier
-\subsubsection{Fitness}
+\paragraph{Fitness Sharing}
 The algorithm assigns fitness for an organism based off both its coverage and the population's coverage; this is a form of fitness sharing. Each edge has a base score associated with it. These scores are then split amongst all the test suites that cover it. The motivation for using fitness sharing is the follow: if many organisms cover a particular edge, then it must be easy to reach and thus organisms should receive less fitness for covering it; however, if only one organism in the population covers an edge, then that organism should receive a higher fitness.
 
+\subsubsection{Test Case Generation and Search} 
+\textbf{TODO:} Brief introduction to these operations
+
+\FloatBarrier
+\paragraph{Test Case Crossover and Mutation}
+Every generation, a single organism is selected proportional to its fitness. The test cases within the selected organism are then subjected to the test case crossover and mutation procedure given below. Simple k-point crossover is used. This operator maintains the values of the input parameters and swaps them around to generate the two child test cases. Each of these test cases are then subjected to small point mutations. That is with probability $P_m$, a small delta value calculated using a gaussian distribution from the orginal value is added or subtracted to get the new parameter value. Because test case crossover is more important it is attempted several times before giving up.
+ 
+%============================= Test Case Cross Alg =====================
+
+\begin{figure}[h!]
+	\begin{center}
+		\hrule
+		\medskip
+		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{TestCaseCrossover}(cutPts, P_m)$  
+    Proportionally select a test suite, $ts$, from the population
+
+    for $i=0$ to $100$
+        From$ ts $ select two random test cases,$ tc1 $and$ tc2 $, from$ ts $
+
+        $child1, child2 \leftarrow $crossover($tc1$, $tc2$, $cutPts$)
+        $child1.$mutate($P_m$)
+        $child2.$mutate($P_m$)
+
+        if $child1$ is covering anything not covered by ts
+            $ts$.addTestCase($child1$)
+            break
+        else if $child2$ is covering anything not covered by ts
+            $ts$.addTestCase($child2$)
+            break
+    end-for
+		\end{Verbatim}
+		\hrule
+	\end{center}
+	\caption{Algorithm for test case crossover \label{fig:tcCross}}
+\end{figure}
+\begin{comment}
+\begin{figure}[h!]
+	\begin{center}
+		\hrule
+		\medskip
+		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+		$\hbox{TestCaseCrossover}(cutPts, P_m)$  
+		$ts \leftarrow P.$select()
+		$tc1 \leftarrow ts.$getRandomTestCase()
+		$tc2 \leftarrow ts.$getRandomTestCase()
+		
+		for $i=0$ to $100$
+		$child1, child2 \leftarrow $crossover($tc1$, $tc2$, $cutPts$)
+		$child1.$mutate($P_m$)
+		$child2.$mutate($P_m$)
+		
+		if $child1$ is covering anything not covered by ts
+		$ts$.addTestCase($child1$)
+		break
+		else if $child2$ is covering anything not covered by ts
+		$ts$.addTestCase($child2$)
+		break
+		end-for
+		\end{Verbatim}
+		\hrule
+	\end{center}
+	\caption{Algorithm for test case crossover \label{fig:tcCrossAlt}}
+\end{figure}
+\end{comment}
+
+
+\FloatBarrier
+\paragraph{Local Optimization}
+Two simple local optimization techniques are used, but the structure of both is very similar. The LocalOptFromParameters function will take a test case and, beginning with a small neighbor size, will begin looking at other test cases in the neighborhood of the supplied one. 
+
+The LocalOptFromZero function tries to pull the test case's parameters closer to zero. This was added because values in the neighbor hood of zero, such as 1, -1, or 0, can drastically alter the flow of the program being tested, but because the search space was so large, the simulation was unable to find these values without this.
+
+Both functions explore each neighborhood several times before expanding the neighborhood. If at any point, a test case is found that covers something not in the population then it is added to the organism by replacing a duplicate test case.
+
+
+%============================= Local Opt Alg =====================
+\begin{figure}[h!]
+	\begin{center}
+		\hrule
+		\medskip
+		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+		$\hbox{TryLocalOptimization}()$
+		$org\leftarrow$$P$.Select()
+		
+		Randomaly select one of the two local opt functions and try it on a 
+		duplicate test case from $org$, store results in$ tc $
+		
+		if$ tc $ is not null replace a duplicate test case in$ org $ with tc
+		\end{Verbatim}
+		\hrule
+	\end{center}
+	\caption{Algorithm for local optimization \label{fig:lcOpt}}
+\end{figure}
+
+\begin{figure}[h!]
+	\begin{center}
+		\hrule
+		\medskip
+		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+		$\hbox{LocalOptFromZero}(testCase)$
+		$neighborhoodSize\leftarrow5 $
+		for $i=1$ to $1000$ 
+		$temp\leftarrow$$testCase$
+		for $j=1$ to $150$
+		for each parameter, $p$ in temp
+		95\% of the time set $p$ to a random value in the neighbor of zero
+		5\% of the time set $p$ to $p/2$
+		end-for     
+		if $temp$ covers anything not covered in the population return$ temp $
+		end-for
+		$neighborhoodSize\leftarrow$$neighborhoodSize+5$
+		end-for
+		
+		if no improvement was ever found then return null
+		\end{Verbatim}
+		\hrule
+	\end{center}
+	\caption{Algorithm for local optimization \label{fig:lcOptFZ}}
+\end{figure}
+
+\begin{figure}[h!]
+	\begin{center}
+		\hrule
+		\medskip
+		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+		$\hbox{LocalOptFromParameters}(testCase)$
+		$neighborhoodSize\leftarrow5 $
+		for $i=1$ to $500$ 
+		$temp\leftarrow$$testCase$
+		for $j=1$ to $150$
+		for each parameter, $p$ in temp
+		set p to a random value in the neighborhood of p
+		end-for     
+		if $temp$ covers anything not covered in the population return$ temp $
+		end-for
+		$neighborhoodSize\leftarrow$$neighborhoodSize+5$
+		end-for
+		
+		if no improvement was ever found then return null
+		\end{Verbatim}
+		\hrule
+	\end{center}
+	\caption{Algorithm for local optimization \label{fig:lcOptFP}}
+\end{figure}
+
 
 
 
 \FloatBarrier
-\subsubsection{Range Set Adaptation}
-The initial search for good ranges will probably fail to find all useful ranges; it may also think some ranges are useful which actually are not. Range adaptation aims to give the simulation of removing non-useful ranges and finding new good ranges.
+\subsubsection{Perturbation Operations}
+\paragraph{Adapting the Range Set} The initial search for good ranges will probably fail to find all useful ranges; it may also think some ranges are useful which actually are not. Range adaptation aims to give the simulation the ability to remove non-useful ranges, as well as focus in on the most fruitful ranges.
 
 After several generations of no improvement, the range set is adapted based on the usefulness of its ranges. First, the range set deletes any ranges below one standard deviation usefulness. All ranges above one standard deviation usefulness are split into two equal sized ranges, with the input parameter buckets copied accordingly to the new ranges. The two ranges immediately above and below the original range are also added to the range set. These new adjacent ranges have the same size as the original range and their usefulness values are set to half that of the original range in order to prevent them being completely ignored. Finally, the range set adds a new random range into its pool to avoid missing ranges not found during initialization or a previous range adaptation.
 
@@ -287,152 +441,8 @@ $\hbox{AdaptRanges}()$
 \caption{Algorithm for adapting ranges \label{fig:adptRang}}
 \end{figure}
 
-\FloatBarrier
-\subsubsection{Local Optimization}
-Two simple local optimization techniques are used, but the structure of both is very similar. The LocalOptFromParameters function will take a test case and, beginning with a small neighbor size, will begin looking at other test cases in the neighborhood of the supplied one. 
-
-The LocalOptFromZero function tries to pull the test case's parameters closer to zero. This was added because values in the neighbor hood of zero, such as 1, -1, or 0, can drastically alter the flow of the program being tested, but because the search space was so large, the simulation was unable to find these values without this.
-
-Both functions explore each neighborhood several times before expanding the neighborhood. If at any point, a test case is found that covers something not in the population then it is added to the organism by replacing a duplicate test case.
-
-
-%============================= Local Opt Alg =====================
-\begin{figure}[h!]
-\begin{center}
-\hrule
-\medskip
-\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{TryLocalOptimization}()$
-   $org\leftarrow$$P$.Select()
-   
-   Randomaly select one of the two local opt functions and try it on a 
-      duplicate test case from $org$, store results in$ tc $
-      
-   if$ tc $ is not null replace a duplicate test case in$ org $ with tc
-\end{Verbatim}
-\hrule
-\end{center}
-\caption{Algorithm for local optimization \label{fig:lcOpt}}
-\end{figure}
-
-\begin{figure}[h!]
-\begin{center}
-\hrule
-\medskip
-\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{LocalOptFromZero}(testCase)$
-   $neighborhoodSize\leftarrow5 $
-   for $i=1$ to $1000$ 
-      $temp\leftarrow$$testCase$
-      for $j=1$ to $150$
-         for each parameter, $p$ in temp
-            95\% of the time set $p$ to a random value in the neighbor of zero
-            5\% of the time set $p$ to $p/2$
-         end-for     
-         if $temp$ covers anything not covered in the population return$ temp $
-      end-for
-      $neighborhoodSize\leftarrow$$neighborhoodSize+5$
-   end-for
-   
-   if no improvement was ever found then return null
-\end{Verbatim}
-\hrule
-\end{center}
-\caption{Algorithm for local optimization \label{fig:lcOptFZ}}
-\end{figure}
-
-\begin{figure}[h!]
-\begin{center}
-\hrule
-\medskip
-\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{LocalOptFromParameters}(testCase)$
-   $neighborhoodSize\leftarrow5 $
-   for $i=1$ to $500$ 
-      $temp\leftarrow$$testCase$
-      for $j=1$ to $150$
-         for each parameter, $p$ in temp
-            set p to a random value in the neighborhood of p
-         end-for     
-         if $temp$ covers anything not covered in the population return$ temp $
-      end-for
-      $neighborhoodSize\leftarrow$$neighborhoodSize+5$
-   end-for
-   
-   if no improvement was ever found then return null
-\end{Verbatim}
-\hrule
-\end{center}
-\caption{Algorithm for local optimization \label{fig:lcOptFP}}
-\end{figure}
-
-\FloatBarrier
-\subsubsection{Crossover}
-Test suites and test cases each have their own crossover operator. Both operators are normal k-point crossover. Because test case crossover is more important it is attempted several times before giving up.
-
-After test suite crossover, the algorithm always replaces both parents. 
-
-%============================= Test Case Cross Alg =====================
-\begin{figure}[h!]
-\begin{center}
-\hrule
-\medskip
-\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{TestCaseCrossover}(cutPts, P_m)$  
-   $ts \leftarrow P.$select()
-   $tc1 \leftarrow ts.$getRandomTestCase()
-   $tc2 \leftarrow ts.$getRandomTestCase()
-   
-   for $i=0$ to $100$
-      $child1, child2 \leftarrow $crossover($tc1$, $tc2$, $cutPts$)
-      $child1.$mutate($P_m$)
-      $child2.$mutate($P_m$)
-      
-      if $child1$ is covering anything not covered by ts
-         $ts$.addTestCase($child1$)
-         break
-      else if $child2$ is covering anything not covered by ts
-         $ts$.addTestCase($child2$)
-         break
-   end-for
-\end{Verbatim}
-\hrule
-\end{center}
-\caption{Algorithm for test case crossover \label{fig:tcCrossAlt}}
-\end{figure}
-
-\begin{figure}[h!]
-\begin{center}
-\hrule
-\medskip
-\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-        codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{TestCaseCrossover}(cutPts, P_m)$  
-   Proportionally select a test suite, $ts$, from the population
-   
-   for $i=0$ to $100$
-      From$ ts $ select two random test cases,$ tc1 $and$ tc2 $, from$ ts $
-      
-      $child1, child2 \leftarrow $crossover($tc1$, $tc2$, $cutPts$)
-      $child1.$mutate($P_m$)
-      $child2.$mutate($P_m$)
-      
-      if $child1$ is covering anything not covered by ts
-         $ts$.addTestCase($child1$)
-         break
-      else if $child2$ is covering anything not covered by ts
-         $ts$.addTestCase($child2$)
-         break
-   end-for
-\end{Verbatim}
-\hrule
-\end{center}
-\caption{Algorithm for test case crossover \label{fig:tcCross}}
-\end{figure}
+\paragraph{Test Suite Crossover and Mutation} 
+Test suites are normal k-point crossover. After test suite crossover, the algorithm always replaces both parents. 
 
 
 
