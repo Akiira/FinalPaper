@@ -157,11 +157,14 @@ $\hbox{run}(maxGens, numCutPoints, P_m)$
 
 \subsubsection{Initializing the Range Set}
 
-The algorithm begins by executing a preprocessing procedure termed FindGoodRanges(). In this preprocessing step, the algorithm searches for promising ranges and adds them to the simulation's range set. A range includes a start value and an end value, as well as an array of input parameter buckets. The buckets are non-overlapping partitions of size 25 within the range, e.g. the range [0, 75] would contain the following array of buckets [ [0, 24], [25, 49], [50, 74] ]. These buckets are mapped to counts of the number of times input parameters in those buckets were part of a test case that provided unique coverage for the population. The sum of all of the buckets in a given range is considered the usefulness of that range. As we will see the algorithm actively maintains and adapts this range set based on information learned regarding the usefulness of its constituent ranges. The GA pulls ranges from the range set any time a test case needs to be created, and if a generated test case offers new coverage to the final test suite, the buckets within which the test case's parameters fall are incremented accordingly.
+The algorithm maintains a set of promising input parameter ranges throughout the simulation. Any time a new test case needs to be generated the simulation can query this range set for good ranges; the simulation can then pick parameters from those ranges for the new test case. 
 
-\textbf{TODO:} Merge these two descriptions to come up with one cohesive paragraph that introduces ranges and the range set. I considered just deleting the paragraph below but we'll discuss it first.
+A range includes a start value and an end value, as well as an array of input parameter buckets. The buckets are partitions of size 25 within the range, e.g. the range [0, 74] would contain the following array of buckets [ [0, 24], [25, 49], [50, 74] ]. These buckets contain counts of how many times that sub-range was used to provide some unique coverage for the population. Summing the counts in these buckets gives the usefulness for that range.
 
-At the start of the algorithm the FindGoodRanges() procedure is run to find promising ranges of input values and add them to the global range set. This procedure loops, starting with a range around 0 and extending in both directions towards max and min integer, generating a single test case from each range. If a test case provides coverage that hasn't yet been seen during this initial procedure, its corresponding range is added to the global range set. This procedure can be repeated using various range sizes, which in some cases enabled to algorithm to find additional coverage and ranges not found in previous iterations. However this is an expensive procedure whose goal is to simply identify promising ranges that help focus the genetic algorithm's exploration. Thus for the purposes of the current research we found that performing two iterations, first with a range size of 5000, then with a range size of 2500 provided a good set of initial seed ranges for the genetic algorithm to utilize, while not taking too long to complete.
+At the start of the simulation the FindGoodRanges() procedure is run to find promising ranges of input values and add them to the global range set. This procedure loops, starting with a range around zero and extending in both directions towards max and min integer, generating a single test case from each range. If a test case provides coverage that has not yet been seen during this initial procedure, its corresponding range is added to the global range set. 
+
+This procedure can be repeated using various range sizes, which in some cases enabled the algorithm to find additional coverage and ranges not found in previous iterations. However, this is an expensive procedure; thus, only two iterations were used, first with a range of size 5000, then with a range of size 2500. This provided a good set of initial seed ranges for the genetic algorithm to utilize, while not taking too long to complete.
+
 
 %============================= Range Search Alg =====================
 \begin{figure}[h!]
@@ -174,7 +177,8 @@ $\hbox{FindGoodRanges}()$
    $rangeSet \leftarrow$ Empty Range Set
 		
    for ( $size \in \{5000, 2500\}$ ) 
-      $posStart \leftarrow -size/2, negStart \leftarrow size/2$
+      $posStart \leftarrow -size/2$
+      $negStart \leftarrow size/2$
 		
       while $posStart + size < max\_int$ and $negStart - size > min\_int$ \{
          $posRange \leftarrow$ [posStart, posStart + size]
@@ -303,7 +307,7 @@ $\hbox{LocalOptFromParameters}(testCase)$
 
 \FloatBarrier
 
-\paragraph{Adapting the Range Set} The initial search for good ranges will probably fail to find all useful ranges; it may also think some ranges are useful which actually are not. Range adaptation aims to give the simulation the ability to remove non-useful ranges, as well as focus in on the most fruitful ranges.
+\subsubsection{Range Set Adaptation} The initial search for good ranges will probably fail to find all useful ranges; it may also think some ranges are useful which actually are not. Range adaptation aims to give the simulation the ability to remove non-useful ranges, as well as focus in on the most fruitful ranges.
 
 After several generations of no improvement, the range set is adapted based on the usefulness of its ranges. First, the range set deletes any ranges below one standard deviation usefulness. All ranges above one standard deviation usefulness are split into two equal sized ranges, with the input parameter buckets copied accordingly to the new ranges. The two ranges immediately above and below the original range are also added to the range set. These new adjacent ranges have the same size as the original range and their usefulness values are set to half that of the original range in order to prevent them being completely ignored. Finally, the range set adds a new random range into its pool to avoid missing ranges not found during initialization or a previous range adaptation.
 
