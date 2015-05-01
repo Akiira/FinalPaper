@@ -135,14 +135,14 @@ $\hbox{run}(maxGens, numCutPoints, P_m)$
    do \{
       updatePopulationsFitness()
 
-      TestCaseCrossoverAndMutation($numCutPts$, $P_m$)
+      TestCaseCrossover($numCutPts$, $P_m$)
 
       if $currentGen$ is multiple of 10
          TryLocalOptimization()
 
       if no improvement for more than 20 generations or $currentGen$ is multiple of 30 
          AdaptRanges() 
-         TestSuiteCrossoverAndMutation($numCutPts$, $P_m$) 
+         TestSuiteCrossover($numCutPts$, $P_m$) 
 
       $currentGen \leftarrow currentGen+1$
    \} while ending criteria has not been met
