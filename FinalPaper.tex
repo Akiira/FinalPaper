@@ -119,7 +119,6 @@ The following section has been broken down into the subsections for each major a
 
 The main simulation loop has several components that need to be address. First, it must keep track of how many generations it has been since no improvement was made. The simulation uses this variable as part of the ending predicate and in determining how often test suite crossover and range adaptation is preformed.
 %============================= Main Loop Alg =====================
-
 \begin{figure}[h!]
 \begin{center}
 \hrule
@@ -205,6 +204,7 @@ $\hbox{FindGoodRanges}()$
 \caption{Algorithm for finding good ranges \label{fig:ranges}}
 \end{figure}
 \FloatBarrier
+%============================= End Range Search Alg =================
 
 \subsubsection{Initializing the Population}
 
