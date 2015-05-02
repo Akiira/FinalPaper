@@ -218,10 +218,6 @@ The algorithm maintains three levels of coverage metadata for the purposes of fi
 \paragraph{Fitness Sharing}
 The algorithm assigns fitness for an organism based off both its coverage and the population's coverage; this is a form of fitness sharing. Each edge has a base score associated with it. These scores are then split amongst all the test suites that cover it. The motivation for using fitness sharing is the follow: if many organisms cover a particular edge, then it must be easy to reach and thus organisms should receive less fitness for covering it; however, if only one organism in the population covers an edge, then that organism should receive a higher fitness.
 
-\subsubsection{Test Case Generation and Search} 
-\textbf{TODO:} Brief introduction to these operations
-
-
 \FloatBarrier
 \subsubsection{Local Optimization}
 
@@ -336,9 +332,11 @@ $\hbox{AdaptRanges}()$
 \end{figure}
 \FloatBarrier
 
-\subsubsection{Crossover}
+\subsubsection{Crossover and Mutation}
 
 Test suites and test cases each have their own crossover operator. Both operators use normal k-point crossover and fitness proportional selection. However, the test case operator simply selects one test suite and then selects test cases at random from that test suite. The simulation attempts test case crossover several times before giving up; this is to increase the chance of finding a good parameter combinations, assuming the range search has narrowed in on good ranges. After test suite crossover, the algorithm always replaces both parents, while test case crossover only replaces a test case if it offers new coverage for a test suite.
+
+Even though these two operators are similar they each serve a different purpose. Test suite crossover causes a greater change in the partaking organisms by adding and removing test cases. Since, each test case was created with certain ranges, this also has the effect of mixing up the ranges in a test suite. Test case crossover, on the other hand, makes much smaller changes to a test suite, by mixing up the parameters between two test cases. The hope is that test suite crossover will help the test suite get the ranges it needs to find new coverage and then test case crossover will be able to combine those ranges in the correct manner.
 
 Mutation is also executed during this step. The simulation uses point mutations for both, each with probability $P_m$. For test suites mutation involves simply creating a new test case, for test cases it involves changing a parameter to a new value pick using a normal distribution around the parameters original value. 
 
