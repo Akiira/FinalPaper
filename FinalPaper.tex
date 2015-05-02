@@ -377,6 +377,14 @@ $\hbox{AdaptRanges}()$
 \end{figure}
 \FloatBarrier
 
+\subsubsection{Stopping Criteria}
+The algorithm has three potential stopping criteria. 
+\begin{enumerate}
+	\item Achieving 100\% branch and multiple condition coverage. 
+	\item 500 generations without any improvement of branch or multiple condition coverage
+	\item 10000 generations have passed.
+\end{enumerate}
+
 
 In conclusion the proposed algorithm seeks to generate a test suite with maximal coverage through the use of a simplifying assumption of the relationships between input parameters and a genetic algorithm. First, the algorithm finds a set of promising ranges that give unique coverage when used as the sole source of parameter values. Then a genetic algorithm, with the help of local optimization and range set adaptation, searches the space of possible test cases stemming from the most promising combinations of these ranges to build a test suite with maximal branch and multiple condition coverage. The results of our tests are promising, however further inspection uncovered that the majority of the test cases that made it into the final test suite originated from the initial population and local optimization, and the genetic search did not work as well as we hoped. 
 
@@ -406,9 +414,66 @@ In an attempt to give the algorithm a more formidable test, this graph was custo
 \subsubsection{Med Hard 1 and Med Hard 2 CFGs}
 Initial testing seemed to show that Hard CFG was a little too challenging for the algorithm. In addition it exceeded the scope of the problems algorithms such as these are typically evaluated against. Thus the Hard CFG was split at the root into two subtrees, which became Mad Hard 1 and Med Hard 2. The number of parameters was pruned down to 4, naturally each subtree has 39 edges, and due to how the cut was performed Med Hard one has 74 predicates while Med Hard 2 has 79 predicates.
 
-\subsection{Parameter Tuning} 
-Each of Hilo, Triangle, Med Hard 1, and Med Hard 2 were evaluated with population sizes ranging from 5 to 100, number of cut points ranging from 1 to 4, and mutation probability ranging from 0 to 1. Scattered tests were also run with larger population sizes and adap
 
+
+\subsection{Parameter Tuning} 
+In hopes of finding an optimal combination of parameters for the GA, systematic tests were run to generate a number of 3D graphs representing slices of the 4D space of \{number of cut points, mutation prob., pop. size, number of generations\}. To this end the Hilo, Triangle, Med Hard 1, and Med Hard 2 each were evaluated with population sizes ranging from 5 to 100, number of cut points ranging from 1 to 4, and mutation probability ranging from 0 to 1. Population sizes were stepped by 5, cut points by 1, and mutation probability by 0.02. Thirty runs for each combination of parameters were averaged to get the reported results. 
+
+The results on all graphs showed that essentially none of the parameters made a substantial impact on the ability of the algorithm to find coverage. Coverage ratios were generally constant across the board for each graph, regardless of what parameters were used. The only exception being that if the population size was less than the number of ranges found in the initial range search, coverage suffered by as much as 10\%. For HiLo and Triangle the algorithm maxed out coverage in less than 100 generations. For the med hard graphs the number of generations varied by no more than 400 generations, and in a mostly random manner making it hard to claim any particular combination of parameters was better than another. This seemed to indicate that the initial range search, population generation, and local optimization functions account for the majority of the coverage obtained by the algorithm.
+
+\subsection{Results}
+
+Since no particular set of parameters seemed to prevail of others, we chose to run our final tests somewhat arbitrarily with a population size of 25, 0.5 mutation probability, and 2 cut points. In order to further investigate the efficacy of the various operators, three categories of final tests were performed on each of the CFGs. First, we evaulated each CFG against the entire algorithm as described above. Then, to determine if in fact the genetic operators were capable of finding good test cases on their own, we evaluated each CFG against the algorithm without any calls to either local optimization heuristic. Finally, to determine the effectiveness of the local optimization alone, we cut out all calls to test case and test suite crossover and mutation, as well as range adaption to test only the initial range search, population initialization, and local optimization operations.
+
+The results...
+
+\begin{figure}[h!]
+% Number of tests per point: 50
+% Maximum Generations: 10000 
+% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
+\begin{center}
+	\begin{tabular}{| l | c | c | c | c |}
+		\hline
+		CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. seconds/run \\ \hline
+		HiLo & 0.857143 & 0.785714 & 753.4 & 1.88864 \\ \hline
+		%Test Case Source Report: (Avg. Size of final suite: 6.660000)
+		%	Initial Population:           5.080000 (76.276276%)
+		%	TestSuiteMutation:            0.040000 (0.600601%)
+		%	TestCaseCrossoverAndMutation: 1.540000 (23.123123%)
+		%	LocalOptFromParameters:       0.000000 (0.000000%)
+		%	LocalOptFromZero:             0.000000 (0.000000%)
+		Triangle & 0.916667 & 0.904762 & 578.92 & 1.60156 \\ \hline
+		%Test Case Source Report: (Avg. Size of final suite: 14.020000)
+		%	Initial Population:           11.320000 (80.741797%)
+		%	TestSuiteMutation:            0.040000 (0.285307%)
+		%	TestCaseCrossoverAndMutation: 2.660000 (18.972896%)
+		%	LocalOptFromParameters:       0.000000 (0.000000%)
+		%	LocalOptFromZero:             0.000000 (0.000000%)
+		Medium-Hard-One & 0.846154 & 0.816901 & 1257.96 & 6.51491 \\ \hline
+		%Test Case Source Report: (Avg. Size of final suite: 25.020000)
+		%	Initial Population:           10.660000 (42.605915%)
+		%	TestSuiteMutation:            4.100000 (16.386890%)
+		%	TestCaseCrossoverAndMutation: 10.260000 (41.007194%)
+		%	LocalOptFromParameters:       0.000000 (0.000000%)
+		%	LocalOptFromZero:             0.000000 (0.000000%)
+		Medium-Hard-Two & 0.666667 & 0.658228 & 1073.38 & 6.22098 \\ \hline
+		%Test Case Source Report: (Avg. Size of final suite: 18.820000)
+		%	Initial Population:           8.880000 (47.183847%)
+		%	TestSuiteMutation:            0.060000 (0.318810%)
+		%	TestCaseCrossoverAndMutation: 9.880000 (52.497343%)
+		%	LocalOptFromParameters:       0.000000 (0.000000%)
+		%	LocalOptFromZero:             0.000000 (0.000000%)
+		Hard & 0.564103 & 0.46 & 1208.94 & 17.9978 \\ \hline
+		%Test Case Source Report: (Avg. Size of final suite: 27.580000)
+		%	Initial Population:           12.680000 (45.975344%)
+		%	TestSuiteMutation:            4.040000 (14.648296%)
+		%	TestCaseCrossoverAndMutation: 10.860000 (39.376360%)
+		%	LocalOptFromParameters:       0.000000 (0.000000%)
+		%	LocalOptFromZero:             0.000000 (0.000000%)
+	\end{tabular}
+\end{center}
+\caption{Final Results, No Local Optimization \label{fig:finalResultNoLocalOpt}}
+\end{figure}
 
 \newpage
 \section{Discussion}
