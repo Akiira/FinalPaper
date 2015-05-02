@@ -29,6 +29,8 @@ This paper applies techniques of genetic algorithms to the problem of finding te
 
 \section{TODO}
 
+The rangeSet adaptation is not run after 20 gen of no improvement or currentGen mod 30 as suggested by the main loop. It is 30 gens of no improv or currentGen mod 100. I originally set it to this because of my concerns about the "No going back nature" of the range adaptation code. That is once a range is deleted, the only way to get it back is if you have another range adjacent to it that does well or by some miracle its found randomly. So I wanted to give some more time for the ranges to be used particularly a let the test suite crossover run a few times and not do them at the same time. Given what we know about the algorithm now though it probably wouldn't affect the coverage much if at all, but we need to make sure that whats int he paper and whats in the code are the same.
+
 Should we, as suggested by El Ariss, replace all references to testing programs with testing functions?
 
 In our test suite crossover function we still call adapt mutation probability. Should we talk about this in the paper, just leave it out of the paper and keep it in the program. Or just remove it from the program since it doesn't really make sense with what the algorithm became?
