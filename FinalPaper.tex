@@ -125,38 +125,43 @@ The following section has been broken down into the subsections for each major a
 \subsubsection{Main Simulation Loop}
 
 %============================= Main Loop Alg =====================
-
 \begin{figure}[h!]
-\begin{center}
-\hrule
-\medskip
-\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{run}(maxGens, numCutPoints, P_m)$
-   $currentGen\leftarrow0 $
-
-   FindGoodRanges()
-   BuildPopulation()
-
-   do \{
-      updatePopulationsFitness()
-
-      TestCaseCrossover($numCutPts$, $P_m$)
-
-      if $currentGen$ is multiple of 10
-         TryLocalOptimization()
-
-      if no improvement for more than 20 generations or $currentGen$ is multiple of 30 
-         AdaptRanges() 
-         TestSuiteCrossover($numCutPts$, $P_m$) 
-
-      $currentGen \leftarrow currentGen+1$
-   \} while ending criteria has not been met
-	
-\end{Verbatim}
-\hrule
-\end{center}
-\caption{Algorithm for main simulation loop \label{fig:simLoopAlt}}
+	\begin{center}
+		\hrule
+		\medskip
+		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+		$\hbox{run}(maxGens, numCutPoints, P_m)$
+		$currentGen\leftarrow0 $
+		
+		FindGoodRanges()
+		BuildPopulation()
+		
+		do \{
+		UpdatePopulationsFitness()
+		
+		Proportionally select a test suite, $ts$, from the population
+		Use $ts$ for test case crossover and mutation to get $tc$
+		If $tc$ is not null add it to $ts$ by replacing a duplicate test case
+		
+		if $currentGen$ is multiple of 10
+		TryLocalOptimization()
+		
+		if no improvement for $\ge20$ generations or $currentGen$ is multiple of 30 
+		AdaptRanges()
+		
+		Proportionally select two test suites from the population
+		Do crossover and mutation on these to get children
+		Replace both parents with the children
+		fi
+		
+		$currentGen \leftarrow currentGen+1$
+		\} while ending criteria has not been met
+		
+		\end{Verbatim}
+		\hrule
+	\end{center}
+	\caption{Algorithm for main simulation loop \label{fig:simLoopAlt}}
 \end{figure}
 \FloatBarrier
 %============================= End Main Loop Alg =====================
@@ -224,19 +229,18 @@ The algorithm maintains three levels of coverage metadata for the purposes of fi
 \paragraph{Fitness Sharing}
 The algorithm assigns fitness for an organism based off both its coverage and the population's coverage; this is a form of fitness sharing. Each edge or predicate has a base score associated with it. The score for a particular edge or predicate is split amongst all the test suites that cover it. These scores are then split amongst all the test suites that cover them. The motivation for using fitness sharing is the following: if many organisms cover a particular edge, then it must be easy to reach and thus organisms should receive less fitness for covering it; however, if only one organism in the population covers an edge, then that organism should receive a higher fitness. Furthermore if a edge is covered by multiple organisms, but only a handful of times population wide, the organisms that cover that edge should receive more fitness than organism who cover an edge that has been covered a very large number of times population wide.
 
+\begin{comment} Maybe not needed?
 \subsubsection{Test Case Generation and Search} 
-
 The main test case search occurs by crossing over and mutating test cases within organisms, as well as applying local optimization heuristics that manipulate or replace an organism's test cases. As mentioned above the algorithm begins by thoroughly searching the space of possible test cases composed of parameters from singular ranges of the range set. After many generations of no improvements using test case crossover and local optimization, the algorithm performs two key perturbation procedures. First the range set adapts itself based on information learned regarding the fruitfulness of its constituent ranges. Then test suite crossover and mutation are applied to mix up the available input parameters inside of test suites.
+\end{comment}
 
-\subsubsection{Crossover}
+\subsubsection{Crossover, Mutation, and Replacement}
 
-Test suites and test cases each have their own crossover operator. Both operators use normal k-point crossover and fitness proportional selection. However, the test case operator simply selects one test suite and then selects test cases at random from that test suite. The simulation attempts test case crossover several times before giving up; this is to increase the chance of finding a good parameter combinations, assuming the range search has narrowed in on good ranges. 
+Test suites and test cases each have their own crossover operator. Both operators use normal k-point crossover and fitness proportional selection. However, the test case operator only selects one test suite and then selects test cases at random from that test suite to crossover. The simulation attempts test case crossover several times before giving up; this is to increase the chance of finding a good parameter combinations, assuming the range search has narrowed in on good ranges.
 
-Mutation is also executed during this step. The simulation uses point mutations for both, each with probability $P_m$. For test suites mutation involves simply creating a new test case, for test cases it involves changing a parameter to a new value picked using a normal distribution around the parameters original value. 
+Mutation and replacement immediately follow both forms of crossover. The simulation uses point mutations in both cases, each with probability $P_m$. For test suites, mutation involves creating a new test cases out of the most useful ranges in the range set. After test suite crossover, the algorithm always replaces both parents. For test cases, mutation involves changing the parameters new values generated using a normal distribution around the parameters' original values. Child test cases only find their way into the parent test suite if they offer new coverage. 
 
-After test suite crossover, the algorithm always replaces both parents, while test case crossover only replaces a test case if it offers new coverage for a test suite. 
-
-Even though these two operators are similar they each serve a different purpose. Test suite crossover causes a greater change in the partaking organisms by adding and removing test cases. Since, each test case was created with certain ranges, this also has the effect of mixing up the ranges in a test suite. Test case crossover, on the other hand, makes much smaller changes to a test suite, by mixing up the parameters between two test cases. The hope is that test suite crossover will help the test suite get the ranges it needs to find new coverage and then test case crossover will be able to combine those ranges in the correct manner.
+Even though these two operators are similar they each serve a different purpose. Test suite crossover causes a greater change in the partaking organisms by swapping a significant number of entire test cases between the parents. Since, each test case was created with certain ranges, this also has the effect of mixing up the ranges in a test suite. Test case crossover, on the other hand, makes much smaller changes to a test suite, by mixing up the parameters between two test cases. Thus the ranges of parameters available within the organism do not change, but the coverage of the suite may improve as a result. The hope is that test suite crossover will help the test suite get the ranges it needs to find new coverage and then test case crossover will be able to combine those parameters into more useful test cases.
 
 %============================= Test Case Cross Alg =====================
 \begin{figure}[h!]
