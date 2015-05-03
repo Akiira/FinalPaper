@@ -444,6 +444,25 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\caption{Coverage ratios of the entire algorithm,  \label{fig:finalResultEntireAlgCoverage}}
 \end{figure}
 
+\begin{figure}[h!]
+	% Entire Algorithm	- 	Coverages
+	% Number of tests per point: 50 *)
+	% Maximum Generations: 10000 *)
+	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
+	\begin{center}
+		\begin{tabular}{| l | c | c | c | c |}
+			\hline
+			CFG             & Branch Coverage & MCC Coverage & Generations & Run Time \\ \hline
+			HiLo            & 100\%           & 100\%        & 46          & 1s       \\ \hline
+			Triangle        & 100\%           & 95\%         & 521         & 6s       \\ \hline
+			Medium-Hard-One & 92\%            & 87\%         & 1027        & 26s      \\ \hline
+			Medium-Hard-Two & 92\%            & 90\%         & 1300        & 34s      \\ \hline
+			Hard            & 95\%            & 85\%         & 1824        & 95s      \\ \hline
+			ParameterTest   & 50\%            & 25\%         & 500         & 2s       \\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{Coverage ratios of the entire algorithm,  \label{fig:finalResultEntireAlgCoverageAlt}}
+\end{figure}
 
 \begin{figure}[h!]
 	% Without GA	- 	Coverages
