@@ -30,6 +30,7 @@ This paper applies techniques of genetic algorithms to the problem of finding te
 \section{TODO}
 
 \begin{itemize}
+\item Make nomenclature consistent, so if its called Medium-One somewhere and Medium-Hard somewhere else we need to pick one
 \item Add any missing citations
 \item Decide if to use FloatBarrier or not
 \item Finish the abstract
@@ -41,6 +42,9 @@ This paper applies techniques of genetic algorithms to the problem of finding te
      \begin{itemize}
      \item I think this is pretty much done. Not sure if the parameter test should be in the tables
 	     or just discussed in a more theoretical context.
+	     \begin{itemize}
+          \item I think its fine to just discuss it afterwards.
+         \end{itemize}
      \end{itemize}
 \item Discussion Section
      \begin{itemize}
@@ -413,6 +417,7 @@ The results on all graphs showed that none of the parameters made a substantial 
 
 \subsection{Results}
 \paragraph{Setup}Since no particular set of parameters seemed to prevail of others, we chose to run our final tests somewhat arbitrarily with a population size of 25, 0.5 mutation probability, and 2 cut points. In order to further investigate the efficacy of the various operators, four categories of final tests were performed on each of the CFGs. First, we evaluated each CFG against the entire algorithm as described in section 5.1. Then, to determine the effectiveness of the local optimization alone, we cut out all calls to test case and test suite crossover and mutation. To determine to what extent the genetic operators are capable of finding good test cases, we evaluated each CFG against the algorithm without any calls to either local optimization heuristics. Finally, each CFG was run against a completely random searcher for comparison. The random searcher was given the same amount of time as the average time taken by a run of the entire algorithm on each graph. Each test was repeated 50 times and the results shown in the following tables represent the averages obtained over the 50 runs. 
+
 
 \paragraph{Description of Tables} Table \ref{tab:CovAll} reports the average branch and multiple condition coverage achieved by running the entire algorithm. Table \ref{tab:ContrAll} reports the average size, in number of test cases, of the test suites that resulted from the runs in table \ref{tab:CovAll}. In addition, Table \ref{tab:ContrAll} reports the percentage of the test cases in the final suite that came from each of the algorithm's five test case sources. Recall, test cases present in the initial population have all of their parameters sourced from a single range found during the FindGoodRanges procedure. Tests resulting from test suite mutation are built by mixing parameters from the most useful ranges in the range set, which are sampled with replacement from the range set using a usefulness proportional selection scheme. The last three columns refer to test cases resulting from the TestCaseCrossover, LocalOptFromParameters, and LocalOptFromZero procedures respectively. Tables \ref{tab:CovNoGA} and \ref{tab:CovNoLO} have the structure as table \ref{tab:CovAll} while tables \ref{tab:ContribNoGA} and \ref{tab:ContribNoLO} have the same structure as table \ref{tab:ContrAll}, but correspond to the two partial forms of the algorithm mentioned in the Setup paragraph above. These allow for more thorough analysis of the roles played by each major operator in the algorithm, and enable us to draw some better conclusions about their search power.
 
