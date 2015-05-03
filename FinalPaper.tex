@@ -29,8 +29,6 @@ This paper applies techniques of genetic algorithms to the problem of finding te
 
 \section{TODO}
 
-The rangeSet adaptation is not run after 20 gen of no improvement or currentGen mod 30 as suggested by the main loop. It is 30 gens of no improv or currentGen mod 100. I originally set it to this because of my concerns about the "No going back nature" of the range adaptation code. That is once a range is deleted, the only way to get it back is if you have another range adjacent to it that does well or by some miracle its found randomly. So I wanted to give some more time for the ranges to be used particularly a let the test suite crossover run a few times and not do them at the same time. Given what we know about the algorithm now though it probably wouldn't affect the coverage much if at all, but we need to make sure that whats int he paper and whats in the code are the same.
-
 Should we, as suggested by El Ariss, replace all references to testing programs with testing functions?
 
 In our test suite crossover function we still call adapt mutation probability. Should we talk about this in the paper, just leave it out of the paper and keep it in the program. Or just remove it from the program since it doesn't really make sense with what the algorithm became?
@@ -129,37 +127,36 @@ The following section has been broken down into the subsections for each major a
 	\begin{center}
 		\hrule
 		\medskip
-		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-		$\hbox{run}(maxGens, numCutPoints, P_m)$
-		$currentGen\leftarrow0 $
-		
-		FindGoodRanges()
-		BuildPopulation()
-		
-		do \{
-		UpdatePopulationsFitness()
-		
-		Proportionally select a test suite, $ts$, from the population
-		Use $ts$ for test case crossover and mutation to get $tc$
-		If $tc$ is not null add it to $ts$ by replacing a duplicate test case
-		
-		if $currentGen$ is multiple of 10
-		TryLocalOptimization()
-		
-		if no improvement for $\ge20$ generations or $currentGen$ is multiple of 30 
-		AdaptRanges()
-		
-		Proportionally select two test suites from the population
-		Do crossover and mutation on these to get children
-		Replace both parents with the children
-		fi
-		
-		$currentGen \leftarrow currentGen+1$
-		\} while ending criteria has not been met
-		
-		\end{Verbatim}
-		\hrule
+\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+   $currentGen\leftarrow0 $
+   
+   FindGoodRanges()
+   BuildPopulation()
+   
+   do \{
+      UpdatePopulationsFitness()
+   
+      Proportionally select a test suite, $ts$, from the population
+      Use $ts$ for test case crossover and mutation to get $tc$
+      If $tc$ is not null add it to $ts$ by replacing a duplicate test case
+   
+      if $currentGen$ is multiple of 10
+         TryLocalOptimization()
+   
+     if no improvement for $\ge20$ generations and $currentGen$ is multiple of 100
+        AdaptRanges()
+   
+     if no improvement for $\ge20$ generations and $currentGen$ is multiple of 30 
+        Proportionally select two test suites from the population
+        Do crossover and mutation on these to get children
+        Replace both parents with the children
+     fi
+   
+     $currentGen \leftarrow currentGen+1$
+   \} while ending criteria has not been met
+\end{Verbatim}
+\hrule
 	\end{center}
 	\caption{Algorithm for main simulation loop \label{fig:simLoopAlt}}
 \end{figure}
@@ -275,8 +272,8 @@ $\hbox{TestCaseCrossover}(cutPts, P_m)$
 \FloatBarrier
 \subsubsection{Local Optimization}
 
-Two simple local optimization techniques are used, but the structure of both is very similar. The LocalOptFromParameters function will take a test case and, beginning with a small neighbor size, will begin looking at other test cases in the neighborhood of the supplied one. The LocalOptFromZero function tries to pull the test case's parameters closer to zero. This was added because values in the neighborhood of zero, such as 1, -1, or 0, can drastically alter the flow of the program being tested, but because the search space was so large, the simulation was unable to find these values without this. Both functions explore each neighborhood several times before expanding the neighborhood. If at any point, a test case is found that covers something not in the population then it is added to the organism by replacing a duplicate test case.
-
+Two simple local optimization techniques are used, but the structure of both is very similar. The LocalOptFromParameters function will take a test case and, beginning with a small neighbor size, will begin looking at other test cases in the neighborhood of that test case. The LocalOptFromZero function tries to pull the test case's parameters closer to zero. This was added because values in the neighborhood of zero, such as 1, -1, or 0, can drastically alter the flow of the program being tested, but because the search space was so large, the simulation was unable to find these values without help. Both functions explore each neighborhood several times, then expand the neighborhood to try again if no new coverage could be found. The TryLocalOptimization procedure called from the main simulation loop chooses, with equal probability, one of these heuristics to apply. If at any point during either procedure a test case is found that offers new coverage to the simulation, it is added to the organism by replacing a duplicate test case.
+\begin{comment}
 %============================= Local Opt Alg =====================
 \begin{figure}[h!]
 \begin{center}
@@ -295,7 +292,8 @@ $\hbox{TryLocalOptimization}()$
 \hrule
 \end{center}
 \caption{Algorithm for selection of a local optimization \label{fig:lcOpt}}
-\end{figure}
+\end{figure
+\end{comment}
 \begin{figure}[h!]
 	\begin{center}
 		\hrule
@@ -347,8 +345,9 @@ $\hbox{LocalOptFromZero}(testCase)$
 \end{center}
 \caption{Algorithm for local optimization around zero \label{fig:lcOptFZ}}
 \end{figure}
-
 \FloatBarrier
+%============================= End Local Opt Alg =====================
+
 
 \subsubsection{Range Set Adaptation} The initial search for good ranges will probably fail to find all useful ranges; it may also think some ranges are useful which actually are not. Range adaptation aims to give the simulation the ability to remove non-useful ranges, as well as focus in on the most fruitful ranges, and find new ones that may have been missed. As mentioned above this procedure is only run after several generations of no improvement using the other operators.
 
@@ -378,6 +377,7 @@ $\hbox{AdaptRanges}()$
 \caption{Algorithm for adapting ranges \label{fig:adptRang}}
 \end{figure}
 \FloatBarrier
+%============================= End Adapt Ranges Alg =====================
 
 \subsubsection{Stopping Criteria}
 The algorithm has three potential stopping criteria. 
@@ -387,9 +387,10 @@ The algorithm has three potential stopping criteria.
 	\item 10000 generations have passed.
 \end{enumerate}
 
-In conclusion the proposed algorithm seeks to generate a test suite with maximal coverage through the use of a simplifying assumption of the relationships between input parameters and a genetic algorithm. First, the algorithm finds a set of promising ranges that give unique coverage when used as the sole source of parameter values. Then a genetic algorithm, with the help of local optimization and range set adaptation, searches the space of possible test cases stemming from the most promising combinations of these ranges to build a test suite with maximal branch and multiple condition coverage. The results of our tests are promising, however further inspection uncovered that the majority of the test cases that made it into the final test suite originated from the initial population and local optimization, and the genetic search did not work as well as we hoped. 
+\subsubsection{Conclusion}
+The proposed genetic algorithm seeks to generate a test suite with maximal coverage by utilizing a simplifying assumption of the relationships between input parameters. First, the algorithm finds a set of promising ranges that give unique coverage when used as the sole source of parameter values. Then a genetic algorithm, with the help of local optimization and range set adaptation, searches the space of possible test cases stemming from the most promising combinations of these ranges to build a test suite with maximal branch and multiple condition coverage. The results of our tests are promising, however further inspection uncovered that the majority of the test cases that made it into the final test suite originated from the initial population and local optimization, and the genetic search did not work as well as we hoped. 
 
-\FloatBarrier
+
 \newpage
 
 \section{Experimental Results}
