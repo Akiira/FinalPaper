@@ -419,7 +419,10 @@ In hopes of finding an optimal combination of parameters for the GA, systematic 
 The results on all graphs showed that none of the parameters made a substantial impact on the ability of the algorithm to find coverage. Coverage ratios were generally constant across the board for each graph, regardless of what parameters were used. The only exception being that if the population size was less than the number of ranges found in the initial range search, coverage suffered by as much as 10\%. For HiLo and Triangle the algorithm maxed out coverage in less than 100 generations. For the med hard graphs the number of generations varied by no more than 400 generations, and in a mostly random manner making it hard to claim any particular combination of parameters was better than another. This seemed to indicate that the initial range search, population generation, and local optimization functions account for the majority of the coverage obtained by the algorithm.
 
 \subsection{Results}
-Since no particular set of parameters seemed to prevail of others, we chose to run our final tests somewhat arbitrarily with a population size of 25, 0.5 mutation probability, and 2 cut points. In order to further investigate the efficacy of the various operators, four categories of final tests were performed on each of the CFGs. First, we evaulated each CFG against the entire algorithm as described above. Then, to determine if in fact the genetic operators were capable of finding good test cases on their own, we evaluated each CFG against the algorithm without any calls to either local optimization heuristics. To determine the effectiveness of the local optimization alone, we cut out all calls to test case and test suite crossover and mutation, as well as range adaption. Finally, each CFG was run against a completely random searcher for comparison. The random searcher was given the same amount of time as the average time taken by a run of the entire algorithm on each graph.
+\paragraph{Setup}Since no particular set of parameters seemed to prevail of others, we chose to run our final tests somewhat arbitrarily with a population size of 25, 0.5 mutation probability, and 2 cut points. In order to further investigate the efficacy of the various operators, four categories of final tests were performed on each of the CFGs. First, we evaluated each CFG against the entire algorithm as described in section 5.1. Then, to determine the effectiveness of the local optimization alone, we cut out all calls to test case and test suite crossover and mutation. To determine to what extent the genetic operators were capable of finding good test cases, we evaluated each CFG against the algorithm without any calls to either local optimization heuristics. Finally, each CFG was run against a completely random searcher for comparison. The random searcher was given the same amount of time as the average time taken by a run of the entire algorithm on each graph. Each test was repeated 50 times and the results shown in figures 7 through 13 represent the averages obtained over the 50 runs. 
+
+\paragraph{Description of Figures} Figure 7 reports the average branch and multiple condition coverage achieved by running the entire algorithm. Figure 10 reports the average size, in number of test cases, of the test suites that resulted from the runs in Figure 7. In addition, Figure 10 reports the percentage of the test cases in the final suite that came from each of the algorithm's five test case sources. Recall, test cases present in the initial population have all of their parameters sourced from a single range found during the FindGoodRanges procedure. Tests resulting from test suite mutation are built by mixing parameters from the most useful ranges in the range set, which are sampled with replacement from the range set using a usefulness proportional selection scheme. The last three columns refer to test cases resulting from the TestCaseCrossover, LocalOptFromParameters, and LocalOptFromZero procedures respectively. Figures 8 and 9, as well as figures 11 and 12 have the same structure as figures 7 and 10, but correspond to the two partial forms of the algorithm mentioned in the Setup paragraph above. These allow for more thorough analysis of the roles played by each major operator in the algorithm, and enable us to draw some better conclusions about their search power.
+
 
 \begin{figure}[h!]
 % Entire Algorithm	- 	Coverages
@@ -437,7 +440,7 @@ Since no particular set of parameters seemed to prevail of others, we chose to r
 		Hard & 0.923077 & 0.82 & 1686.6 & 133.28 \\ \hline
 	\end{tabular}
 \end{center}
-\caption{Entire Algorithm, Coverages \label{fig:finalResultEntireAlgCoverage}}
+\caption{Coverage ratios of the entire algorithm,  \label{fig:finalResultEntireAlgCoverage}}
 \end{figure}
 
 \begin{figure}[h!]
@@ -456,7 +459,7 @@ Since no particular set of parameters seemed to prevail of others, we chose to r
 			Hard & 0.884615 & 0.793333 & 1766.2 & 81.5711 \\ \hline
 		\end{tabular}
 	\end{center}
-	\caption{Without GA, Coverages}
+	\caption{Coverage ratios of the algorithm without crossover and mutation}
 	\label{fig:finalResultNoGACoverage}
 \end{figure}
 
@@ -476,7 +479,7 @@ Since no particular set of parameters seemed to prevail of others, we chose to r
 			Hard & 0.564103 & 0.46 & 1208.94 & 17.9978 \\ \hline
 		\end{tabular}
 	\end{center}
-	\caption{No Local Optimization, Coverages}
+	\caption{Coverage ratios of the algorithm without local optimization}
 	\label{fig:finalResultNoLOCoverage}
 \end{figure}
 
@@ -548,21 +551,29 @@ Since no particular set of parameters seemed to prevail of others, we chose to r
 \begin{center}
 	\begin{tabular}{| l | c | c | c | c |}
 		\hline
-		CFG & Branch Coverage & MCC Coverage &  Seconds \\ \hline
-		SimpleIfElse & 1 & 0 & 1e-19 \\ \hline
-		HiLo & 1.39524 & 0 & 0.0001 \\ \hline
-		Medium-Hard-One & 0.198628 & 0 & 0.0001 \\ \hline
-		Triangle & 1.21468 & 0 & 0.0001 \\ \hline
-		Medium-Hard-Two & 0.191496 & 0 & 0.0001 \\ \hline
-		Hard & 0.194872 & 0 & 0.0001 \\ \hline
+		CFG & Branch Coverage & MCC Coverage & Seconds \\ \hline
+		SimpleIfElse & 1 & 0 & 0 \\ \hline
+		HiLo & 1.42857 & 0 & 1.13118 \\ \hline
+		Medium-Hard-One & 0.198628 & 0 & 26.1443 \\ \hline
+		Triangle & 1.29762 & 0 & 5.73532 \\ \hline
+		Medium-Hard-Two & 0.191496 & 0 & 31.7016 \\ \hline
+		Hard & 0.195316 & 0 & 133.28 \\ \hline
 	\end{tabular}
 \end{center}
+
 \caption{Random Searcher \label{fig:finalResultRandomSearcher}}
 \end{figure}
 
 \FloatBarrier
 \newpage
 \section{Discussion}
+Firstly, from figure 7 we see that the overall branch and multiple condition coverage ratios achieved by the algorithm are quite high. In fact deeper analysis of the missing edges and predicates show that the algorithm only failed to cover one very specific type of compound predicates. Namely, those which involved two or more parameters to be exactly equal to each other, while also having the sum, the mean, and the standard deviations of all the parameters falling within particular ranges. The missing predicate for the triangle graph is actually unreachable \textbf{I think}, so our algorithm in fact does achieve 100\% predicate coverage on the triangle graph. We never fully expected to be able to cover these edges and predicates of the hard graph and since the level of complexity in reaching them far exceeds the complexity of the benchmark programs used in other research on this topic, it's safe to say that the proposed algorithm is up to the task of automatic test generation for simple programs and functions. That said, there are some notable problems with the algorithm that should not go unexamined, particularly the fact that 
+
+As suspected from the parameter tuning tests, the algorithm achieves very similar coverage of the implemented CFGs with or without the genetic operators of crossover and mutation. From Fig 10 we see that when running the entire algorithm, anywhere from 75 to 85\% of the test cases that make up the final test suites for the medium hard and hard graphs were either present in the initial population or were generated as the result of one of the local optimization heuristics. As one would expect these percentages are even higher for the simpler HiLo and Triangle CFGs. Comparison of Fig 7 with Fig 8 and Fig 10 with Fig 11 show that cutting out mutation and crossover all together does not significantly change the coverage achieved by the algorithm. 
+There are several possible interpretations of this. A likely one is that the tests we ran were too 
+
+
+In general the results show that the entire algorithm results in superior coverage and uses lesser or equal to the number of generations than to achieve that coverage leaving out the genetic operators or local optimization 
 
 \newpage
 \section{Conclusion}
