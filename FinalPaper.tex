@@ -425,23 +425,25 @@ The results on all graphs showed that none of the parameters made a substantial 
 \paragraph{Description of Figures} Figure 7 reports the average branch and multiple condition coverage achieved by running the entire algorithm. Figure 10 reports the average size, in number of test cases, of the test suites that resulted from the runs in Figure 7. In addition, Figure 10 reports the percentage of the test cases in the final suite that came from each of the algorithm's five test case sources. Recall, test cases present in the initial population have all of their parameters sourced from a single range found during the FindGoodRanges procedure. Tests resulting from test suite mutation are built by mixing parameters from the most useful ranges in the range set, which are sampled with replacement from the range set using a usefulness proportional selection scheme. The last three columns refer to test cases resulting from the TestCaseCrossover, LocalOptFromParameters, and LocalOptFromZero procedures respectively. Figures 8 and 9, as well as figures 11 and 12 have the same structure as figures 7 and 10, but correspond to the two partial forms of the algorithm mentioned in the Setup paragraph above. These allow for more thorough analysis of the roles played by each major operator in the algorithm, and enable us to draw some better conclusions about their search power.
 
 \begin{figure}[h!]
-% Entire Algorithm	- 	Coverages
-% Number of tests per point: 50 *)
-% Maximum Generations: 10000 *)
-% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
-\begin{center}
-	\begin{tabular}{| l | c | c | c | c |}
-		\hline
-		CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
-		HiLo & 1 & 1 & 48.5 & 1.13118 \\ \hline
-		Triangle & 1 & 0.952381 & 521.96 & 5.73532 \\ \hline
-		Medium-Hard-One & 0.948718 & 0.887324 & 1025.9 & 26.1443 \\ \hline
-		Medium-Hard-Two & 0.948718 & 0.898734 & 1265.44 & 31.7016 \\ \hline
-		Hard & 0.923077 & 0.82 & 1686.6 & 133.28 \\ \hline
-	\end{tabular}
-\end{center}
-\caption{Coverage ratios of the entire algorithm,  \label{fig:finalResultEntireAlgCoverage}}
+	% Entire Algorithm	- 	Coverages
+	% Number of tests per point: 50 *)
+	% Maximum Generations: 10000 *)
+	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
+	\begin{center}
+		\begin{tabular}{| l | c | c | c | c |}
+			\hline
+			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
+			HiLo & 1 & 1 & 46.56 & 1.14958 \\ \hline
+			Triangle & 1 & 0.952381 & 521.84 & 6.08553 \\ \hline
+			Medium-Hard-One & 0.923077 & 0.873239 & 1027.04 & 26.5636 \\ \hline
+			Medium-Hard-Two & 0.923077 & 0.898734 & 1300.4 & 34.7523 \\ \hline
+			Hard & 0.948718 & 0.846667 & 1824.02 & 95.5332 \\ \hline
+			ParameterTest & 0.5 & 0.25 & 500 & 2.80504 \\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{Coverage ratios of the entire algorithm,  \label{fig:finalResultEntireAlgCoverage}}
 \end{figure}
+
 
 \begin{figure}[h!]
 	% Without GA	- 	Coverages
@@ -452,11 +454,12 @@ The results on all graphs showed that none of the parameters made a substantial 
 		\begin{tabular}{| l | c | c | c | c |}
 			\hline
 			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
-			HiLo & 1 & 1 & 45.4 & 1.01954 \\ \hline
-			Triangle & 1 & 0.952381 & 528 & 5.07594 \\ \hline
-			Medium-Hard-One & 0.923077 & 0.873239 & 1204.2 & 27.0842 \\ \hline
-			Medium-Hard-Two & 0.974359 & 0.936709 & 1248.8 & 27.5053 \\ \hline
-			Hard & 0.884615 & 0.793333 & 1766.2 & 81.5711 \\ \hline
+			HiLo & 1 & 1 & 52.4 & 1.15083 \\ \hline
+			Triangle & 1 & 0.952381 & 530 & 5.38398 \\ \hline
+			Medium-Hard-One & 0.897436 & 0.830986 & 1140 & 27.2965 \\ \hline
+			Medium-Hard-Two & 0.923077 & 0.886076 & 1430 & 32.7474 \\ \hline
+			Hard & 0.884615 & 0.806667 & 1788.6 & 85.5322 \\ \hline
+			ParameterTest & 0.5 & 0.25 & 500 & 2.53027 \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Coverage ratios of the algorithm without crossover and mutation}
@@ -471,12 +474,13 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c | c | c | c |}
 			\hline
-			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. seconds/run \\ \hline
-			HiLo & 0.857143 & 0.785714 & 753.4 & 1.88864 \\ \hline
-			Triangle & 0.916667 & 0.904762 & 578.92 & 1.60156 \\ \hline
-			Medium-Hard-One & 0.846154 & 0.816901 & 1257.96 & 6.51491 \\ \hline
-			Medium-Hard-Two & 0.666667 & 0.658228 & 1073.38 & 6.22098 \\ \hline
-			Hard & 0.564103 & 0.46 & 1208.94 & 17.9978 \\ \hline
+			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
+			HiLo & 0.857143 & 0.785714 & 729.64 & 2.01433 \\ \hline
+			Triangle & 0.916667 & 0.904762 & 579.12 & 1.70271 \\ \hline
+			Medium-Hard-One & 0.769231 & 0.71831 & 1290.3 & 7.11525 \\ \hline
+			Medium-Hard-Two & 0.692308 & 0.670886 & 1096.88 & 6.71933 \\ \hline
+			Hard & 0.538462 & 0.433333 & 1255.18 & 19.3092 \\ \hline
+			ParameterTest & 0.5 & 0.25 & 500 & 0.882331 \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Coverage ratios of the algorithm without local optimization}
@@ -492,11 +496,12 @@ The results on all graphs showed that none of the parameters made a substantial 
 		\begin{tabular}{| l | c || c | c | c | c | c |}
 			\hline
 			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
-			HiLo            & 8.72  & 58.02 & 0.0   & 2.06  & 10.32  & 29.58	\\ \hline
-			Triangle        & 15.00  & 76.40 & 0.13  & 4.80  & 8.26  & 10.40 \\ \hline
-			Medium-Hard-One & 29.96 & 34.31 & 10.54 & 13.28 & 24.76 & 17.08 \\ \hline
-			Medium-Hard-Two & 33.40 & 27.30 & 0.11  & 11.37 & 15.74 & 45.44 \\ \hline
-			Hard            & 59.54 & 21.56 & 5.50  & 9.74 & 17.56 & 45.61 \\ \hline
+			HiLo & 8.720 & 58.027523 & 0.0 & 2.064220 & 9.403670 & 30.504587 \\ \hline 
+			Triangle & 15.0 & 75.066667 & 0.0 & 5.466667 & 8.80 & 10.666667 \\ \hline 
+			Medium-Hard-One & 29.940 & 35.270541 & 0.0 & 10.086840 & 31.863727 & 22.778891 \\ \hline 
+			Medium-Hard-Two & 33.560 & 27.711561 & 0.0 & 11.382598 & 14.421931 & 46.483909 \\ \hline 
+			Hard & 60.60 & 20.957096 & 0.066007 & 10.099010 & 19.603960 & 49.273927 \\ \hline 
+			ParameterTest & 1.0 & 100.0 & 0.0 & 0.0 & 0.0 & 0.0 \\ \hline 
 		\end{tabular}
 	\end{center}
 	\caption{Entire Alg, Suite size and \% contributions by test case generation method}
@@ -512,11 +517,12 @@ The results on all graphs showed that none of the parameters made a substantial 
 		\begin{tabular}{| l | c || c | c | c | c | c |}
 			\hline
 			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
-			HiLo            & 8.70 & 57.70 & 0.00   & 0.00  & 10.11  & 32.18	\\ \hline
-			Triangle        & 15.00  & 76.13  & 0.00   & 0.00  & 10.53  & 13.33 \\ \hline
-			Medium-Hard-One &  29.60  & 34.79 & 0.00  & 0.00  & 35.81  & 29.39 \\ \hline
-			Medium-Hard-Two & 33.16 & 26.29 & 0.00  & 0.00 & 22.61 & 51.08 \\ \hline
-			Hard            & 59.42 & 20.73 & 0.00  & 0.00 & 26.08 & 53.18 \\ \hline
+			HiLo & 8.70 & 57.471264 & 0.0 & 0.0 & 11.724138 & 30.804598 \\ \hline 
+			Triangle & 15.0 & 75.20 & 0.0 & 0.0 & 10.933333 & 13.866667 \\ \hline 
+			Medium-Hard-One & 29.820 & 35.144199 & 0.0 & 0.0 & 36.887995 & 27.967807 \\ \hline
+			Medium-Hard-Two & 33.80 & 27.514793 & 0.0 & 0.0 & 21.597633 & 50.887574 \\ \hline 
+			Hard & 59.660 & 21.387865 & 0.0 & 0.0 & 25.243044 & 53.369092 \\ \hline 
+			ParameterTest & 1.0 & 100.0 & 0.0 & 0.0 & 0.0 & 0.0 \\ \hline 
 		\end{tabular}
 	\end{center}
 	\caption{Without GA, Suite size and \% contributions by test case generation method} 
@@ -532,11 +538,13 @@ The results on all graphs showed that none of the parameters made a substantial 
 		\begin{tabular}{| l | c || c | c | c | c | c |}
 			\hline
 			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
-			HiLo            & 6.66  & 76.27 & 0.60   & 23.12  & 0.0  & 0.0	\\ \hline
-			Triangle        & 14.02  & 80.74  & 0.28   & 18.97  & 0.0  & 0.0 \\ \hline
-			Medium-Hard-One & 25.02  & 42.60 & 16.38  & 41.00  & 0.0  & 0.0 \\ \hline
-			Medium-Hard-Two & 18.82 & 47.18 & 0.31  & 52.49 & 0.0 & 0.0 \\ \hline
-			Hard            & 27.58 & 45.97 & 14.64  & 39.37 & 0.0 & 0.0 \\ \hline
+			HiLo & 6.580 & 75.987842 & 0.911854 & 23.100304 & 0.0 & 0.0 \\ \hline 
+			Triangle & 14.0 & 80.571429 & 0.142857 & 19.285714 & 0.0 & 0.0 \\ \hline 
+			Medium-Hard-One & 24.440 & 42.553191 & 17.757774 & 39.689034 & 0.0 & 0.0 \\ \hline 
+			Medium-Hard-Two & 19.020 & 47.003155 & 0.525762 & 52.471083 & 0.0 & 0.0 \\ \hline 
+			Hard & 27.980 & 45.532523 & 15.153681 & 39.313796 & 0.0 & 0.0 \\ \hline 
+			ParameterTest & 1.0 & 100.0 & 0.0 & 0.0 & 0.0 & 0.0 \\ \hline
+			
 		\end{tabular}
 	\end{center}
 	\caption{No Local Opt, Suite size and \% contributions by test case generation method}
