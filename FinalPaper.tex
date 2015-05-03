@@ -120,13 +120,9 @@ Of course, unlike the problem above, most meaningful programs have several param
 
 The algorithm attempts to find a set of promising ranges using this assumption. Then applies a genetic algorithm to search the space of test cases resulting from various combinations of parameters from these ranges. Of course this is not perfect and it would not be difficult to construct a program that violates this assumption. However our results show that this method can be effective in finding the vast majority of coverage in test programs with a range of complexity.
 
-The following section has been broken down into the subsections for each major aspect of the proposed algorithm. First, the main simulation loop is introduced to give context throughout the rest of the sections. The notion of input parameter ranges and the simulation's range set is then introduced, followed by a discussion of the population initialization. Fitness calculation and association with organisms is explored; then the tools used for test case generation, including test case crossover and mutation, test suite crossover and mutation, local optimization and range set adaptation are studied.
+The following section has been broken down into the subsections for each major aspect of the proposed algorithm. First, the main simulation loop is provided to give context throughout the rest of the sections. The notion of input parameter ranges and the simulation's range set is then introduced, followed by a discussion of the population initialization. Fitness calculation and association with organisms is explored; then the tools used for test case generation, including test case crossover and mutation, test suite crossover and mutation, local optimization and range set adaptation are studied.
 
 \subsubsection{Main Simulation Loop}
-
-The main simulation loop has several components that need to be addressed. First, it must keep track of how many generations it has been since no improvement was made. The simulation uses this variable as part of the ending predicate and in determining how often test suite crossover and range adaptation is preformed.
-\textbf{TODO: What else to say here}
-
 
 %============================= Main Loop Alg =====================
 
@@ -387,7 +383,6 @@ The algorithm has three potential stopping criteria.
 	\item 10000 generations have passed.
 \end{enumerate}
 
-
 In conclusion the proposed algorithm seeks to generate a test suite with maximal coverage through the use of a simplifying assumption of the relationships between input parameters and a genetic algorithm. First, the algorithm finds a set of promising ranges that give unique coverage when used as the sole source of parameter values. Then a genetic algorithm, with the help of local optimization and range set adaptation, searches the space of possible test cases stemming from the most promising combinations of these ranges to build a test suite with maximal branch and multiple condition coverage. The results of our tests are promising, however further inspection uncovered that the majority of the test cases that made it into the final test suite originated from the initial population and local optimization, and the genetic search did not work as well as we hoped. 
 
 \FloatBarrier
@@ -396,12 +391,7 @@ In conclusion the proposed algorithm seeks to generate a test suite with maximal
 \section{Experimental Results}
 
 The algorithm was tested against 5 control flow graphs of varying complexity, these include a simple too high or too low number guessing program, the well known triangle problem, and three larger custom built CFGs. Our testing consisted of two steps. First, we analyzed the effect of varying the parameters of population size, mutation probability, and number of cut points on some of the implemented graphs. Based on the results of these initial tests we set up a number of final tests to perform. These will be described in detail below. 
-
-\begin{comment}
-     \item Discuss the programs we tested on
-     \item Maybe give a theoretical running time for a random searcher to find inputs for HardCFG
-     \item Give results (Tables and graphs)
-\end{comment}     
+  
 \subsection{Test Programs}
 
 \subsubsection{HiLo CFG}
@@ -421,13 +411,10 @@ Initial testing seemed to show that Hard CFG was a little too challenging for th
 \subsection{Parameter Tuning} 
 In hopes of finding an optimal combination of parameters for the GA, systematic tests were run to generate a number of 3D graphs representing slices of the 4D space of \{number of cut points, mutation prob., pop. size, number of generations\}. To this end the Hilo, Triangle, Med Hard 1, and Med Hard 2 each were evaluated with population sizes ranging from 5 to 100, number of cut points ranging from 1 to 4, and mutation probability ranging from 0 to 1. Population sizes were stepped by 5, cut points by 1, and mutation probability by 0.02. Thirty runs for each combination of parameters were averaged to get the reported results. 
 
-The results on all graphs showed that essentially none of the parameters made a substantial impact on the ability of the algorithm to find coverage. Coverage ratios were generally constant across the board for each graph, regardless of what parameters were used. The only exception being that if the population size was less than the number of ranges found in the initial range search, coverage suffered by as much as 10\%. For HiLo and Triangle the algorithm maxed out coverage in less than 100 generations. For the med hard graphs the number of generations varied by no more than 400 generations, and in a mostly random manner making it hard to claim any particular combination of parameters was better than another. This seemed to indicate that the initial range search, population generation, and local optimization functions account for the majority of the coverage obtained by the algorithm.
+The results on all graphs showed that none of the parameters made a substantial impact on the ability of the algorithm to find coverage. Coverage ratios were generally constant across the board for each graph, regardless of what parameters were used. The only exception being that if the population size was less than the number of ranges found in the initial range search, coverage suffered by as much as 10\%. For HiLo and Triangle the algorithm maxed out coverage in less than 100 generations. For the med hard graphs the number of generations varied by no more than 400 generations, and in a mostly random manner making it hard to claim any particular combination of parameters was better than another. This seemed to indicate that the initial range search, population generation, and local optimization functions account for the majority of the coverage obtained by the algorithm.
 
 \subsection{Results}
-
-Since no particular set of parameters seemed to prevail of others, we chose to run our final tests somewhat arbitrarily with a population size of 25, 0.5 mutation probability, and 2 cut points. In order to further investigate the efficacy of the various operators, four categories of final tests were performed on each of the CFGs. First, we evaulated each CFG against the entire algorithm as described above. Then, to determine if in fact the genetic operators were capable of finding good test cases on their own, we evaluated each CFG against the algorithm without any calls to either local optimization heuristic. To determine the effectiveness of the local optimization alone, we cut out all calls to test case and test suite crossover and mutation, as well as range adaption to test only the initial range search, population initialization, and local optimization operations. Finally, each CFG was run against a completely random searcher for comparison. The random searcher was given the same amount of time as the average time taken by a run of the GA on each graph.
-
-The results...
+Since no particular set of parameters seemed to prevail of others, we chose to run our final tests somewhat arbitrarily with a population size of 25, 0.5 mutation probability, and 2 cut points. In order to further investigate the efficacy of the various operators, four categories of final tests were performed on each of the CFGs. First, we evaulated each CFG against the entire algorithm as described above. Then, to determine if in fact the genetic operators were capable of finding good test cases on their own, we evaluated each CFG against the algorithm without any calls to either local optimization heuristics. To determine the effectiveness of the local optimization alone, we cut out all calls to test case and test suite crossover and mutation, as well as range adaption. Finally, each CFG was run against a completely random searcher for comparison. The random searcher was given the same amount of time as the average time taken by a run of the entire algorithm on each graph.
 
 \begin{figure}[h!]
 % Entire Algorithm	- 	Coverages
