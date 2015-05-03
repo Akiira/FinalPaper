@@ -265,27 +265,8 @@ $\hbox{TestCaseCrossover}(cutPts, P_m)$
 \subsubsection{Local Optimization}
 
 Two simple local optimization techniques are used, but the structure of both is very similar. The LocalOptFromParameters function will take a test case and, beginning with a small neighborhood size, will begin looking at other test cases in the neighborhood of that test case. The LocalOptFromZero function tries to pull the test case's parameters closer to zero. This was added because values in the neighborhood of zero, such as 1, -1, or 0, can drastically alter the flow of the program being tested, but because the search space was so large, the simulation was unable to find these values without help. Both functions explore each neighborhood several times, then expand the neighborhood to try again if no new coverage could be found. The TryLocalOptimization procedure called from the main simulation loop chooses, with equal probability, one of these heuristics to apply. If at any point during either procedure a test case is found that offers new coverage to the simulation, it is added to the organism by replacing a duplicate test case.
-\begin{comment}
+
 %============================= Local Opt Alg =====================
-\begin{figure}[h!]
-\begin{center}
-\hrule
-\medskip
-\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{TryLocalOptimization}()$
-      $org\leftarrow$$P$.Select()
-		
-      Randomaly select one of the two local opt functions and try it on a 
-         duplicate test case from $org$, store results in$ tc $
-		
-      if$ tc $ is not null replace a duplicate test case in$ org $ with tc
-\end{Verbatim}
-\hrule
-\end{center}
-\caption{Algorithm for selection of a local optimization \label{fig:lcOpt}}
-\end{figure
-\end{comment}
 \begin{figure}[h!]
 	\begin{center}
 		\hrule
