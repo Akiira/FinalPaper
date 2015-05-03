@@ -29,30 +29,22 @@ This paper applies techniques of genetic algorithms to the problem of finding te
 
 \section{TODO}
 
-Should we, as suggested by El Ariss, replace all references to testing programs with testing functions?
-
-In our test suite crossover function we still call adapt mutation probability. Should we talk about this in the paper, just leave it out of the paper and keep it in the program. Or just remove it from the program since it doesn't really make sense with what the algorithm became?
-
 \begin{itemize}
 \item Add any missing citations
 \item Decide if to use FloatBarrier or not
+\item Finish the abstract
 \item Our Work section
      \begin{itemize}
-     \item Begin with short, broad overview, then begin algorithm section
-     \item Pick Main Loop algorithm
-     \item FindRanges algorithm
-     \item AdaptRanges alg
-     \item For each algorithm, discuss it briefly in words
+     \item Revise and Prune if necessary
      \end{itemize}
 \item Experimental results section
      \begin{itemize}
-     \item Discuss the programs we tested on
-     \item Maybe give a theoretical running time for a random searcher to find inputs for HardCFG
-     \item Give results (Tables and graphs)
+     \item I think this is pretty much done. Not sure if the parameter test should be in the tables
+	     or just discussed in a more theoretical context.
      \end{itemize}
 \item Discussion Section
      \begin{itemize}
-     \item 
+     \item Figure out what to say
      \end{itemize}
 \item Conclusion Section
      \begin{itemize}
@@ -575,10 +567,12 @@ The results on all graphs showed that none of the parameters made a substantial 
 \FloatBarrier
 \newpage
 \section{Discussion}
-Firstly, from figure 7 we see that the overall branch and multiple condition coverage ratios achieved by the algorithm are quite high. In fact deeper analysis of the missing edges and predicates show that the algorithm only failed to cover one very specific type of compound predicates. Namely, those which involved two or more parameters to be exactly equal to each other, while also having the sum, the mean, and the standard deviations of all the parameters falling within particular ranges. The missing predicate for the triangle graph is actually unreachable \textbf{I think}, so our algorithm in fact does achieve 100\% predicate coverage on the triangle graph. We never fully expected to be able to cover these edges and predicates of the hard graph and since the level of complexity in reaching them far exceeds the complexity of the benchmark programs used in other research on this topic, it's safe to say that the proposed algorithm is up to the task of automatic test generation for simple programs and functions. That said, there are some notable problems with the algorithm that should not go unexamined, particularly the fact that 
+In figure 7 we see that the overall branch and multiple condition coverage ratios achieved by the algorithm are quite high. In fact deeper analysis of the missing predicate for the triangle graph showed that it is actually unreachable, so our algorithm does in fact achieve 100\% coverage of this graph. In the case of the medium hard and hard graphs, the algorithm only failed to cover a very specific type of compound predicate. Namely, those which required two or more parameters to be exactly equal to each other, while also having the sum, the mean, and the standard deviations of the parameters falling within particular ranges. One could imagine adding a simple local optimization or test case generation heuristic that would attempt combinations of having several parameters equal to each other. With this, its likely that the algorithm could be extended to achieve 100\% coverage on all of these test programs. Despite these exciting results achieved when running the algorithm as a whole, the results of the algorithm without crossover and mutation, as well as the GA alone without local optimization bring into question their significance as well as the usefulness of the implemented CFGs as software testing benchmarks.
 
-As suspected from the parameter tuning tests, the algorithm achieves very similar coverage of the implemented CFGs with or without the genetic operators of crossover and mutation. From Fig 10 we see that when running the entire algorithm, anywhere from 75 to 85\% of the test cases that make up the final test suites for the medium hard and hard graphs were either present in the initial population or were generated as the result of one of the local optimization heuristics. As one would expect these percentages are even higher for the simpler HiLo and Triangle CFGs. Comparison of Fig 7 with Fig 8 and Fig 10 with Fig 11 show that cutting out mutation and crossover all together does not significantly change the coverage achieved by the algorithm. 
-There are several possible interpretations of this. A likely one is that the tests we ran were too 
+As suspected from the parameter tuning tests, the algorithm achieves very similar coverage of the implemented CFGs with or without the genetic operators of crossover and mutation. From Fig 10 we see that when running the entire algorithm, anywhere from 75 to 85\% of the test cases that make up the final test suites for the medium hard and hard graphs were either present in the initial population or were generated as the result of one of the local optimization heuristics. As one would expect these percentages are even higher for the simpler HiLo and Triangle CFGs. Comparison of Fig 7 with Fig 8 and Fig 10 with Fig 11 show that cutting out mutation and crossover all together does not significantly change the coverage achieved by the algorithm. In one sense this means that the FindGoodRanges procedure can be extremely effective in narrowing the space of parameters to a manageable size, and furthermore the combination of LocalOptFromZero and LocalOptFromParameters does quite well to generate test cases that 
+
+Although the initial range search and local optimizations are able to achieve most of the coverage on their own, the entire algorithm still outperformed the runs without crossover and mutation by as much as 6\% branch coverage and 4\% predicate coverage on the Hard CFG and Medium Hard One CFG. Comparison of figures 10 and 12 give us a closer glimpse into the  
+There are several possible interpretations of this. Perhaps the most likely is that the test graphs were not challenging enough, and thus do not provide the best possible benchmark of the algorithm's performance. 
 
 
 In general the results show that the entire algorithm results in superior coverage and uses lesser or equal to the number of generations than to achieve that coverage leaving out the genetic operators or local optimization 
