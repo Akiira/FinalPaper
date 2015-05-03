@@ -416,27 +416,7 @@ The results on all graphs showed that none of the parameters made a substantial 
 
 \paragraph{Description of Figures} Figure 7 reports the average branch and multiple condition coverage achieved by running the entire algorithm. Figure 10 reports the average size, in number of test cases, of the test suites that resulted from the runs in Figure 7. In addition, Figure 10 reports the percentage of the test cases in the final suite that came from each of the algorithm's five test case sources. Recall, test cases present in the initial population have all of their parameters sourced from a single range found during the FindGoodRanges procedure. Tests resulting from test suite mutation are built by mixing parameters from the most useful ranges in the range set, which are sampled with replacement from the range set using a usefulness proportional selection scheme. The last three columns refer to test cases resulting from the TestCaseCrossover, LocalOptFromParameters, and LocalOptFromZero procedures respectively. Figures 8 and 9, as well as figures 11 and 12 have the same structure as figures 7 and 10, but correspond to the two partial forms of the algorithm mentioned in the Setup paragraph above. These allow for more thorough analysis of the roles played by each major operator in the algorithm, and enable us to draw some better conclusions about their search power.
 
-\begin{figure}[h!]
-	% Entire Algorithm	- 	Coverages
-	% Number of tests per point: 50 *)
-	% Maximum Generations: 10000 *)
-	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
-	\begin{center}
-		\begin{tabular}{| l | c | c | c | c |}
-			\hline
-			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
-			HiLo & 1 & 1 & 46.56 & 1.14958 \\ \hline
-			Triangle & 1 & 0.952381 & 521.84 & 6.08553 \\ \hline
-			Medium-Hard-One & 0.923077 & 0.873239 & 1027.04 & 26.5636 \\ \hline
-			Medium-Hard-Two & 0.923077 & 0.898734 & 1300.4 & 34.7523 \\ \hline
-			Hard & 0.948718 & 0.846667 & 1824.02 & 95.5332 \\ \hline
-			ParameterTest & 0.5 & 0.25 & 500 & 2.80504 \\ \hline
-		\end{tabular}
-	\end{center}
-	\caption{Coverage ratios of the entire algorithm,  \label{fig:finalResultEntireAlgCoverage}}
-\end{figure}
-
-\begin{figure}[h!]
+\begin{table}[h!]
 	% Entire Algorithm	- 	Coverages
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
@@ -453,10 +433,10 @@ The results on all graphs showed that none of the parameters made a substantial 
 			ParameterTest   & 50\%            & 25\%         & 500         & 2s       \\ \hline
 		\end{tabular}
 	\end{center}
-	\caption{Coverage ratios of the entire algorithm,  \label{fig:finalResultEntireAlgCoverageAlt}}
-\end{figure}
+	\caption{Coverage ratios of the entire algorithm,  \label{fig:finalResultEntireAlgCoverage}}
+\end{table}
 
-\begin{figure}[h!]
+\begin{table}[h!]
 	% Without GA	- 	Coverages
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
@@ -464,20 +444,20 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c | c | c | c |}
 			\hline
-			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
-			HiLo & 1 & 1 & 52.4 & 1.15083 \\ \hline
-			Triangle & 1 & 0.952381 & 530 & 5.38398 \\ \hline
-			Medium-Hard-One & 0.897436 & 0.830986 & 1140 & 27.2965 \\ \hline
-			Medium-Hard-Two & 0.923077 & 0.886076 & 1430 & 32.7474 \\ \hline
-			Hard & 0.884615 & 0.806667 & 1788.6 & 85.5322 \\ \hline
-			ParameterTest & 0.5 & 0.25 & 500 & 2.53027 \\ \hline
+			CFG             & Branch Coverage & MCC Coverage & Generations & Run Time \\ \hline
+			HiLo            & 100\%           & 100\%        & 52          & 1s       \\ \hline
+			Triangle        & 100\%           & 95\%         & 530         & 5s       \\ \hline
+			Medium-Hard-One & 90\%            & 83\%         & 1140        & 27s      \\ \hline
+			Medium-Hard-Two & 92\%            & 89\%         & 1430        & 33s      \\ \hline
+			Hard            & 88\%            & 81\%         & 1788        & 86s      \\ \hline
+			ParameterTest   & 50\%            & 25\%         & 500         & 3s       \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Coverage ratios of the algorithm without crossover and mutation}
 	\label{fig:finalResultNoGACoverage}
-\end{figure}
+\end{table}
 
-\begin{figure}[h!]
+\begin{table}[h!]
 	% No Local Optimization		- 	Coverages
 	% Number of tests per point: 50
 	% Maximum Generations: 10000 
@@ -485,20 +465,20 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c | c | c | c |}
 			\hline
-			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
-			HiLo & 0.857143 & 0.785714 & 729.64 & 2.01433 \\ \hline
-			Triangle & 0.916667 & 0.904762 & 579.12 & 1.70271 \\ \hline
-			Medium-Hard-One & 0.769231 & 0.71831 & 1290.3 & 7.11525 \\ \hline
-			Medium-Hard-Two & 0.692308 & 0.670886 & 1096.88 & 6.71933 \\ \hline
-			Hard & 0.538462 & 0.433333 & 1255.18 & 19.3092 \\ \hline
-			ParameterTest & 0.5 & 0.25 & 500 & 0.882331 \\ \hline
+			CFG             & Branch Coverage & MCC Coverage & Generations & Run Time \\ \hline
+			HiLo            & 86\%            & 79\%         & 729         & 2s       \\ \hline
+			Triangle        & 92\%            & 90\%         & 579         & 2s       \\ \hline
+			Medium-Hard-One & 77\%            & 72\%         & 1290        & 7s       \\ \hline
+			Medium-Hard-Two & 70\%            & 67\%         & 1096        & 7s       \\ \hline
+			Hard            & 54\%            & 43\%         & 1255        & 19s      \\ \hline
+			ParameterTest   & 50\%            & 25\%         & 500         & 1s       \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Coverage ratios of the algorithm without local optimization}
 	\label{fig:finalResultNoLOCoverage}
-\end{figure}
+\end{table}
 
-\begin{figure}[h!]
+\begin{table}[h!]
 	% Entire Algorithm	- 	Test Case Contributions
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
@@ -506,20 +486,20 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c || c | c | c | c | c |}
 			\hline
-			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
-			HiLo & 8.720 & 58.027523 & 0.0 & 2.064220 & 9.403670 & 30.504587 \\ \hline 
-			Triangle & 15.0 & 75.066667 & 0.0 & 5.466667 & 8.80 & 10.666667 \\ \hline 
-			Medium-Hard-One & 29.940 & 35.270541 & 0.0 & 10.086840 & 31.863727 & 22.778891 \\ \hline 
-			Medium-Hard-Two & 33.560 & 27.711561 & 0.0 & 11.382598 & 14.421931 & 46.483909 \\ \hline 
-			Hard & 60.60 & 20.957096 & 0.066007 & 10.099010 & 19.603960 & 49.273927 \\ \hline 
-			ParameterTest & 1.0 & 100.0 & 0.0 & 0.0 & 0.0 & 0.0 \\ \hline 
+			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param) & L.O. (zero) \\ \hline
+			HiLo            & 9          & 58\%      & 0\%           & 2\%          & 9\%          & 31\%        \\ \hline
+			Triangle        & 15         & 75\%      & 0\%           & 5\%          & 9\%          & 11\%        \\ \hline
+			Medium-Hard-One & 30         & 35\%      & 0\%           & 10\%         & 32\%         & 23\%        \\ \hline
+			Medium-Hard-Two & 34         & 28\%      & 0\%           & 11\%         & 14\%         & 46\%        \\ \hline
+			Hard            & 60         & 201\%     & 0\%           & 10\%         & 20\%         & 49\%        \\ \hline
+			ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%         \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Entire Alg, Suite size and \% contributions by test case generation method}
 	\label{fig:finalResultEntireAlgContrib}
-\end{figure}
+\end{table}
 
-\begin{figure}[h!]
+\begin{table}[h!]
 	% Without GA	- 	Test Case Contributions
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
@@ -527,20 +507,20 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c || c | c | c | c | c |}
 			\hline
-			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
-			HiLo & 8.70 & 57.471264 & 0.0 & 0.0 & 11.724138 & 30.804598 \\ \hline 
-			Triangle & 15.0 & 75.20 & 0.0 & 0.0 & 10.933333 & 13.866667 \\ \hline 
-			Medium-Hard-One & 29.820 & 35.144199 & 0.0 & 0.0 & 36.887995 & 27.967807 \\ \hline
-			Medium-Hard-Two & 33.80 & 27.514793 & 0.0 & 0.0 & 21.597633 & 50.887574 \\ \hline 
-			Hard & 59.660 & 21.387865 & 0.0 & 0.0 & 25.243044 & 53.369092 \\ \hline 
-			ParameterTest & 1.0 & 100.0 & 0.0 & 0.0 & 0.0 & 0.0 \\ \hline 
+			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param) & L.O. (zero) \\ \hline
+			HiLo            & 9          & 57\%      & 0\%           & 0\%          & 12\%         & 31\%        \\ \hline
+			Triangle        & 15         & 75\%      & 0\%           & 0\%          & 11\%         & 14\%        \\ \hline
+			Medium-Hard-One & 30         & 35\%      & 0\%           & 0\%          & 37\%         & 28\%        \\ \hline
+			Medium-Hard-Two & 34         & 28\%      & 0\%           & 0\%          & 22\%         & 51\%        \\ \hline
+			Hard            & 60         & 21\%      & 0\%           & 0\%          & 25\%         & 53\%        \\ \hline
+			ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%         \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Without GA, Suite size and \% contributions by test case generation method} 
 	\label{fig:finalResultNoGAContrib}
-\end{figure}
+\end{table}
 
-\begin{figure}[h!]
+\begin{table}[h!]
 	% No Local Optimization 	- 	Test Case Contributions
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
@@ -548,40 +528,39 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c || c | c | c | c | c |}
 			\hline
-			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
-			HiLo & 6.580 & 75.987842 & 0.911854 & 23.100304 & 0.0 & 0.0 \\ \hline 
-			Triangle & 14.0 & 80.571429 & 0.142857 & 19.285714 & 0.0 & 0.0 \\ \hline 
-			Medium-Hard-One & 24.440 & 42.553191 & 17.757774 & 39.689034 & 0.0 & 0.0 \\ \hline 
-			Medium-Hard-Two & 19.020 & 47.003155 & 0.525762 & 52.471083 & 0.0 & 0.0 \\ \hline 
-			Hard & 27.980 & 45.532523 & 15.153681 & 39.313796 & 0.0 & 0.0 \\ \hline 
-			ParameterTest & 1.0 & 100.0 & 0.0 & 0.0 & 0.0 & 0.0 \\ \hline
-			
+			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param) & L.O. (zero) \\ \hline
+			HiLo            & 7          & 76\%      & 1\%           & 23\%         & 0\%          & 0\%         \\ \hline
+			Triangle        & 14         & 81\%      & 0\%           & 19\%         & 0\%          & 0\%         \\ \hline
+			Medium-Hard-One & 24         & 43\%      & 18\%          & 40\%         & 0\%          & 0\%         \\ \hline
+			Medium-Hard-Two & 19         & 47\%      & 1\%           & 52\%         & 0\%          & 0\%         \\ \hline
+			Hard            & 28         & 46\%      & 15\%          & 39\%         & 0\%          & 0\%         \\ \hline
+			ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%         \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{No Local Opt, Suite size and \% contributions by test case generation method}
 	\label{fig:finalResultNoLOContrib}
-\end{figure}
+\end{table}
 
 
 
 
-\begin{figure}[h!]
+\begin{table}[h!]
 % Random Searcher
 \begin{center}
 	\begin{tabular}{| l | c | c | c | c |}
 		\hline
-		CFG & Branch Coverage & MCC Coverage & Seconds \\ \hline
-		SimpleIfElse & 1 & 0 & 0 \\ \hline
-		HiLo & 1.42857 & 0 & 1.14958 \\ \hline
-		Medium-Hard-One & 0.198628 & 0 & 26.5636 \\ \hline
-		Triangle & 1.29762 & 0 & 6.08553 \\ \hline
-		Medium-Hard-Two & 0.19234 & 0 & 34.7523 \\ \hline
-		Hard & 0.194872 & 0 & 95.5332 \\ \hline
-		ParameterTest & 0.75 & 0 & 0 \\ \hline
+		CFG             & Branch Coverage & MCC Coverage & Run Time &  \\ \hline
+		SimpleIfElse    & 1\%             & 0\%          & 0        &  \\ \hline
+		HiLo            & 1\%             & 0\%          & 1s       &  \\ \hline
+		Medium-Hard-One & 0\%             & 0\%          & 26s      &  \\ \hline
+		Triangle        & 1\%             & 0\%          & 5s       &  \\ \hline
+		Medium-Hard-Two & 0\%             & 0\%          & 31s      &  \\ \hline
+		Hard            & 0\%             & 0\%          & 133s     &  \\ \hline
 	\end{tabular}
 \end{center}
+
 \caption{Random Searcher \label{fig:finalResultRandomSearcher}}
-\end{figure}
+\end{table}
 
 \FloatBarrier
 \newpage
