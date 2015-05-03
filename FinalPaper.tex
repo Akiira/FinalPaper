@@ -425,58 +425,150 @@ The results on all graphs showed that essentially none of the parameters made a 
 
 \subsection{Results}
 
-Since no particular set of parameters seemed to prevail of others, we chose to run our final tests somewhat arbitrarily with a population size of 25, 0.5 mutation probability, and 2 cut points. In order to further investigate the efficacy of the various operators, three categories of final tests were performed on each of the CFGs. First, we evaulated each CFG against the entire algorithm as described above. Then, to determine if in fact the genetic operators were capable of finding good test cases on their own, we evaluated each CFG against the algorithm without any calls to either local optimization heuristic. Finally, to determine the effectiveness of the local optimization alone, we cut out all calls to test case and test suite crossover and mutation, as well as range adaption to test only the initial range search, population initialization, and local optimization operations.
+Since no particular set of parameters seemed to prevail of others, we chose to run our final tests somewhat arbitrarily with a population size of 25, 0.5 mutation probability, and 2 cut points. In order to further investigate the efficacy of the various operators, four categories of final tests were performed on each of the CFGs. First, we evaulated each CFG against the entire algorithm as described above. Then, to determine if in fact the genetic operators were capable of finding good test cases on their own, we evaluated each CFG against the algorithm without any calls to either local optimization heuristic. To determine the effectiveness of the local optimization alone, we cut out all calls to test case and test suite crossover and mutation, as well as range adaption to test only the initial range search, population initialization, and local optimization operations. Finally, each CFG was run against a completely random searcher for comparison. The random searcher was given the same amount of time as the average time taken by a run of the GA on each graph.
 
 The results...
 
 \begin{figure}[h!]
-% Number of tests per point: 50
-% Maximum Generations: 10000 
+% Entire Algorithm	- 	Coverages
+% Number of tests per point: 50 *)
+% Maximum Generations: 10000 *)
 % {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
 \begin{center}
 	\begin{tabular}{| l | c | c | c | c |}
 		\hline
-		CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. seconds/run \\ \hline
-		HiLo & 0.857143 & 0.785714 & 753.4 & 1.88864 \\ \hline
-		%Test Case Source Report: (Avg. Size of final suite: 6.660000)
-		%	Initial Population:           5.080000 (76.276276%)
-		%	TestSuiteMutation:            0.040000 (0.600601%)
-		%	TestCaseCrossoverAndMutation: 1.540000 (23.123123%)
-		%	LocalOptFromParameters:       0.000000 (0.000000%)
-		%	LocalOptFromZero:             0.000000 (0.000000%)
-		Triangle & 0.916667 & 0.904762 & 578.92 & 1.60156 \\ \hline
-		%Test Case Source Report: (Avg. Size of final suite: 14.020000)
-		%	Initial Population:           11.320000 (80.741797%)
-		%	TestSuiteMutation:            0.040000 (0.285307%)
-		%	TestCaseCrossoverAndMutation: 2.660000 (18.972896%)
-		%	LocalOptFromParameters:       0.000000 (0.000000%)
-		%	LocalOptFromZero:             0.000000 (0.000000%)
-		Medium-Hard-One & 0.846154 & 0.816901 & 1257.96 & 6.51491 \\ \hline
-		%Test Case Source Report: (Avg. Size of final suite: 25.020000)
-		%	Initial Population:           10.660000 (42.605915%)
-		%	TestSuiteMutation:            4.100000 (16.386890%)
-		%	TestCaseCrossoverAndMutation: 10.260000 (41.007194%)
-		%	LocalOptFromParameters:       0.000000 (0.000000%)
-		%	LocalOptFromZero:             0.000000 (0.000000%)
-		Medium-Hard-Two & 0.666667 & 0.658228 & 1073.38 & 6.22098 \\ \hline
-		%Test Case Source Report: (Avg. Size of final suite: 18.820000)
-		%	Initial Population:           8.880000 (47.183847%)
-		%	TestSuiteMutation:            0.060000 (0.318810%)
-		%	TestCaseCrossoverAndMutation: 9.880000 (52.497343%)
-		%	LocalOptFromParameters:       0.000000 (0.000000%)
-		%	LocalOptFromZero:             0.000000 (0.000000%)
-		Hard & 0.564103 & 0.46 & 1208.94 & 17.9978 \\ \hline
-		%Test Case Source Report: (Avg. Size of final suite: 27.580000)
-		%	Initial Population:           12.680000 (45.975344%)
-		%	TestSuiteMutation:            4.040000 (14.648296%)
-		%	TestCaseCrossoverAndMutation: 10.860000 (39.376360%)
-		%	LocalOptFromParameters:       0.000000 (0.000000%)
-		%	LocalOptFromZero:             0.000000 (0.000000%)
+		CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
+		HiLo & 1 & 1 & 48.5 & 1.13118 \\ \hline
+		Triangle & 1 & 0.952381 & 521.96 & 5.73532 \\ \hline
+		Medium-Hard-One & 0.948718 & 0.887324 & 1025.9 & 26.1443 \\ \hline
+		Medium-Hard-Two & 0.948718 & 0.898734 & 1265.44 & 31.7016 \\ \hline
+		Hard & 0.923077 & 0.82 & 1686.6 & 133.28 \\ \hline
 	\end{tabular}
 \end{center}
-\caption{Final Results, No Local Optimization \label{fig:finalResultNoLocalOpt}}
+\caption{Entire Algorithm, Coverages \label{fig:finalResultEntireAlgCoverage}}
 \end{figure}
 
+\begin{figure}[h!]
+	% Without GA	- 	Coverages
+	% Number of tests per point: 50 *)
+	% Maximum Generations: 10000 *)
+	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
+	\begin{center}
+		\begin{tabular}{| l | c | c | c | c |}
+			\hline
+			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
+			HiLo & 1 & 1 & 45.4 & 1.01954 \\ \hline
+			Triangle & 1 & 0.952381 & 528 & 5.07594 \\ \hline
+			Medium-Hard-One & 0.923077 & 0.873239 & 1204.2 & 27.0842 \\ \hline
+			Medium-Hard-Two & 0.974359 & 0.936709 & 1248.8 & 27.5053 \\ \hline
+			Hard & 0.884615 & 0.793333 & 1766.2 & 81.5711 \\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{Without GA, Coverages}
+	\label{fig:finalResultNoGACoverage}
+\end{figure}
+
+\begin{figure}[h!]
+	% No Local Optimization		- 	Coverages
+	% Number of tests per point: 50
+	% Maximum Generations: 10000 
+	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
+	\begin{center}
+		\begin{tabular}{| l | c | c | c | c |}
+			\hline
+			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. seconds/run \\ \hline
+			HiLo & 0.857143 & 0.785714 & 753.4 & 1.88864 \\ \hline
+			Triangle & 0.916667 & 0.904762 & 578.92 & 1.60156 \\ \hline
+			Medium-Hard-One & 0.846154 & 0.816901 & 1257.96 & 6.51491 \\ \hline
+			Medium-Hard-Two & 0.666667 & 0.658228 & 1073.38 & 6.22098 \\ \hline
+			Hard & 0.564103 & 0.46 & 1208.94 & 17.9978 \\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{No Local Optimization, Coverages}
+	\label{fig:finalResultNoLOCoverage}
+\end{figure}
+
+\begin{figure}[h!]
+	% Entire Algorithm	- 	Test Case Contributions
+	% Number of tests per point: 50 *)
+	% Maximum Generations: 10000 *)
+	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
+	\begin{center}
+		\begin{tabular}{| l | c || c | c | c | c | c |}
+			\hline
+			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
+			HiLo            & 8.72  & 58.02 & 0.0   & 2.06  & 10.32  & 29.58	\\ \hline
+			Triangle        & 15.00  & 76.40 & 0.13  & 4.80  & 8.26  & 10.40 \\ \hline
+			Medium-Hard-One & 29.96 & 34.31 & 10.54 & 13.28 & 24.76 & 17.08 \\ \hline
+			Medium-Hard-Two & 33.40 & 27.30 & 0.11  & 11.37 & 15.74 & 45.44 \\ \hline
+			Hard            & 59.54 & 21.56 & 5.50  & 9.74 & 17.56 & 45.61 \\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{Entire Alg, Suite size and \% contributions by test case generation method}
+	\label{fig:finalResultEntireAlgContrib}
+\end{figure}
+
+\begin{figure}[h!]
+	% Without GA	- 	Test Case Contributions
+	% Number of tests per point: 50 *)
+	% Maximum Generations: 10000 *)
+	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
+	\begin{center}
+		\begin{tabular}{| l | c || c | c | c | c | c |}
+			\hline
+			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
+			HiLo            & 8.70 & 57.70 & 0.00   & 0.00  & 10.11  & 32.18	\\ \hline
+			Triangle        & 15.00  & 76.13  & 0.00   & 0.00  & 10.53  & 13.33 \\ \hline
+			Medium-Hard-One &  29.60  & 34.79 & 0.00  & 0.00  & 35.81  & 29.39 \\ \hline
+			Medium-Hard-Two & 33.16 & 26.29 & 0.00  & 0.00 & 22.61 & 51.08 \\ \hline
+			Hard            & 59.42 & 20.73 & 0.00  & 0.00 & 26.08 & 53.18 \\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{Without GA, Suite size and \% contributions by test case generation method} 
+	\label{fig:finalResultNoGAContrib}
+\end{figure}
+
+\begin{figure}[h!]
+	% No Local Optimization 	- 	Test Case Contributions
+	% Number of tests per point: 50 *)
+	% Maximum Generations: 10000 *)
+	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
+	\begin{center}
+		\begin{tabular}{| l | c || c | c | c | c | c |}
+			\hline
+			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
+			HiLo            & 6.66  & 76.27 & 0.60   & 23.12  & 0.0  & 0.0	\\ \hline
+			Triangle        & 14.02  & 80.74  & 0.28   & 18.97  & 0.0  & 0.0 \\ \hline
+			Medium-Hard-One & 25.02  & 42.60 & 16.38  & 41.00  & 0.0  & 0.0 \\ \hline
+			Medium-Hard-Two & 18.82 & 47.18 & 0.31  & 52.49 & 0.0 & 0.0 \\ \hline
+			Hard            & 27.58 & 45.97 & 14.64  & 39.37 & 0.0 & 0.0 \\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{No Local Opt, Suite size and \% contributions by test case generation method}
+	\label{fig:finalResultNoLOContrib}
+\end{figure}
+
+
+
+
+\begin{figure}[h!]
+% Random Searcher
+\begin{center}
+	\begin{tabular}{| l | c | c | c | c |}
+		\hline
+		CFG & Branch Coverage & MCC Coverage &  Seconds \\ \hline
+		SimpleIfElse & 1 & 0 & 1e-19 \\ \hline
+		HiLo & 1.39524 & 0 & 0.0001 \\ \hline
+		Medium-Hard-One & 0.198628 & 0 & 0.0001 \\ \hline
+		Triangle & 1.21468 & 0 & 0.0001 \\ \hline
+		Medium-Hard-Two & 0.191496 & 0 & 0.0001 \\ \hline
+		Hard & 0.194872 & 0 & 0.0001 \\ \hline
+	\end{tabular}
+\end{center}
+\caption{Random Searcher \label{fig:finalResultRandomSearcher}}
+\end{figure}
+
+\FloatBarrier
 \newpage
 \section{Discussion}
 
