@@ -364,6 +364,9 @@ The algorithm has three potential stopping criteria.
 	\item 10000 generations have passed.
 \end{enumerate}
 
+\begin{comment}
+Maybe this should be called Summary or 'Algorithm Summary' so the reader doesnt think its the actual conclusion
+\end{comment}
 \subsubsection{Conclusion}
 The proposed genetic algorithm seeks to generate a test suite with maximal coverage by utilizing a simplifying assumption of the relationships between input parameters. First, the algorithm finds a set of promising ranges that give unique coverage when used as the sole source of parameter values. Then a genetic algorithm, with the help of local optimization and range set adaptation, searches the space of possible test cases stemming from the most promising combinations of these ranges to build a test suite with maximal branch and multiple condition coverage. The results of our tests are promising, however further inspection uncovered that the majority of the test cases that made it into the final test suite originated from the initial population and local optimization, and the genetic search did not work as well as we hoped. 
 
