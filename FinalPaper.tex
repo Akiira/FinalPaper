@@ -4,6 +4,7 @@
 \usepackage[bf]{caption2}
 \usepackage{amssymb,amsmath}
 \usepackage{comment}
+\usepackage{hhline}
 \begin{document}
 \pagestyle{headings}
 \mainmatter
@@ -401,142 +402,111 @@ The results on all graphs showed that none of the parameters made a substantial 
 \paragraph{Description of Tables} Table \ref{tab:CovAll} reports the average branch and multiple condition coverage achieved by running the entire algorithm. Table \ref{tab:ContrAll} reports the average size, in number of test cases, of the test suites that resulted from the runs in table \ref{tab:CovAll}. In addition, Table \ref{tab:ContrAll} reports the percentage of the test cases in the final suite that came from each of the algorithm's five test case sources. Recall, test cases present in the initial population have all of their parameters sourced from a single range found during the FindGoodRanges procedure. Tests resulting from test suite mutation are built by mixing parameters from the most useful ranges in the range set, which are sampled with replacement from the range set using a usefulness proportional selection scheme. The last three columns refer to test cases resulting from the TestCaseCrossover, LocalOptFromParameters, and LocalOptFromZero procedures respectively. Tables \ref{tab:CovNoGA} and \ref{tab:CovNoLO} have the structure as table \ref{tab:CovAll} while tables \ref{tab:ContribNoGA} and \ref{tab:ContribNoLO} have the same structure as table \ref{tab:ContrAll}, but correspond to the two partial forms of the algorithm mentioned in the Setup paragraph above. These allow for more thorough analysis of the roles played by each major operator in the algorithm, and enable us to draw some better conclusions about their search power.
 
 \begin{table}[h!]
-	% Entire Algorithm	- 	Coverages
+	% Entire Algorithm
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
 	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
 	\begin{center}
-		\begin{tabular}{| l | c | c | c | c |}
+		
+		\def\arraystretch{1.3}%  1 is the default, change whatever you need
+		\setlength\tabcolsep{1em}
+		\begin{tabular}{| l | c  c  c  c c |}
 			\hline
-			CFG             & Branch Coverage & MCC Coverage & Generations & Run Time \\ \hline
-			HiLo            & 100\%           & 100\%        & 46          & 1s       \\ \hline
-			Triangle        & 100\%           & 95\%         & 521         & 6s       \\ \hline
-			Medium-Hard-One & 92\%            & 87\%         & 1027        & 26s      \\ \hline
-			Medium-Hard-Two & 92\%            & 90\%         & 1300        & 34s      \\ \hline
-			Hard            & 95\%            & 85\%         & 1824        & 95s      \\ \hline
+				             & HiLo  		 & Triangle		& Hard-Left	& 	Hard-Right 		& Hard		\\ \hline
+			Branch Coverage	 & 100\%         & 100	\%      & 92 \%      	& 92\%          & 95\%      \\ \hline
+			MCC Coverage	 & 100\%         & 96 \%        & 87 \%      	& 90\%          & 85\%      \\ \hline
+			Generations		 & 46          	 & 521          & 1027       	& 1300          & 1824      \\ \hline
+			Run Time		 & 1s          	 & 6s           & 26s       	& 34s          	& 95s       \\ \hhline{|=|=====|}
+			
+			Suite Size       & 9        	& 15       	 	& 30			& 34          	& 60        \\ \hline
+			\% Init Pop.     & 58\%         & 75\%       	& 35\%       	& 28\%         	& 21\%      \\ \hline
+			\% TestSuite GA  & 0\%          & 0\%       	& 0\%			& 0\%          	& 0\%       \\ \hline
+			\% TestCase GA  & 2\%          & 5\%       	& 10\%      	& 11\%         	& 10\%      \\ \hline
+			\% 	L.O. (param) & 9\%          & 9\%       	& 32\%       	& 14\%          & 20\%      \\ \hline
+			\% L.O. (zero)	 & 31\%         & 11\%      	& 23\%       	& 46\%          & 49\%      \\ \hline
 		\end{tabular}
 	\end{center}
-	\caption{Coverage ratios of the entire algorithm}  
+	\caption{Entire algorithm}  
 	\label{tab:CovAll}
 \end{table}
 
 \begin{table}[h!]
-	% Without GA	- 	Coverages
+	% Without GA
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
 	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
 	\begin{center}
-		\begin{tabular}{| l | c | c | c | c |}
+		
+		\def\arraystretch{1.3}%  1 is the default, change whatever you need
+		\setlength\tabcolsep{1em}
+		\begin{tabular}{| l | c  c  c  c c |}
 			\hline
-			CFG             & Branch Coverage & MCC Coverage & Generations & Run Time \\ \hline
-			HiLo            & 100\%           & 100\%        & 52          & 1s       \\ \hline
-			Triangle        & 100\%           & 95\%         & 530         & 5s       \\ \hline
-			Medium-Hard-One & 90\%            & 83\%         & 1140        & 27s      \\ \hline
-			Medium-Hard-Two & 92\%            & 89\%         & 1430        & 33s      \\ \hline
-			Hard            & 88\%            & 81\%         & 1788        & 86s      \\ \hline
+						     & HiLo  		 & Triangle		& Hard-Left	& 	Hard-Right 		& Hard		\\ \hline
+			Branch Coverage	 & 100\%         & 100	\%      & 90 \%      	& 92\%          & 88\%      \\ \hline
+			MCC Coverage	 & 100\%         & 96 \%        & 83 \%      	& 89\%          & 81\%      \\ \hline
+			Generations		 & 52          	 & 530          & 1140       	& 1430          & 1788      \\ \hline
+			Run Time		 & 1s          	 & 5s           & 27s       	& 33s          	& 86s       \\ \hhline{|=|=====|}
+																
+			Suite Size       & 9        	& 15       	 	& 30			& 34          	& 60        \\ \hline
+			\% Init Pop.     & 57\%         & 75\%       	& 35\%       	& 28\%         	& 21\%      \\ \hline
+			\% TestSuite GA  & 0\%          & 0\%       	& 0\%			& 0\%          	& 0\%       \\ \hline
+			\% TestCase  GA  & 0\%          & 0\%       	& 0\%      		& 0\%         	& 0\%       \\ \hline
+			\% 	L.O. (param) & 12\%         & 11\%       	& 37\%       	& 22\%          & 25\%      \\ \hline
+			\% L.O. (zero)	 & 31\%         & 14\%      	& 28\%       	& 51\%          & 53\%      \\ \hline
 		\end{tabular}
 	\end{center}
-	\caption{Coverage ratios of the algorithm without crossover and mutation}
-	\label{tab:CovNoGA}
+	\caption{Without Crossover and Mutation}  
+	\label{tab:CovAll}
 \end{table}
 
 \begin{table}[h!]
-	% No Local Optimization		- 	Coverages
-	% Number of tests per point: 50
-	% Maximum Generations: 10000 
-	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
-	\begin{center}
-		\begin{tabular}{| l | c | c | c | c |}
-			\hline
-			CFG             & Branch Coverage & MCC Coverage & Generations & Run Time \\ \hline
-			HiLo            & 86\%            & 79\%         & 729         & 2s       \\ \hline
-			Triangle        & 92\%            & 90\%         & 579         & 2s       \\ \hline
-			Medium-Hard-One & 77\%            & 72\%         & 1290        & 7s       \\ \hline
-			Medium-Hard-Two & 70\%            & 67\%         & 1096        & 7s       \\ \hline
-			Hard            & 54\%            & 43\%         & 1255        & 19s      \\ \hline
-		\end{tabular}
-	\end{center}
-	\caption{Coverage ratios of the algorithm without local optimization}
-	\label{tab:CovNoLO}
-\end{table}
-
-\begin{table}[h!]
-	% Entire Algorithm	- 	Test Case Contributions
+	% No Local Optimization	
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
 	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
 	\begin{center}
-		\begin{tabular}{| l | c || c | c | c | c | c |}
+		
+		\def\arraystretch{1.3}%  1 is the default, change whatever you need
+		\setlength\tabcolsep{1em}
+		\begin{tabular}{| l | c  c  c  c c |}
 			\hline
-			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param) & L.O. (zero) \\ \hline
-			HiLo            & 9          & 58\%      & 0\%           & 2\%          & 9\%          & 31\%        \\ \hline
-			Triangle        & 15         & 75\%      & 0\%           & 5\%          & 9\%          & 11\%        \\ \hline
-			Medium-Hard-One & 30         & 35\%      & 0\%           & 10\%         & 32\%         & 23\%        \\ \hline
-			Medium-Hard-Two & 34         & 28\%      & 0\%           & 11\%         & 14\%         & 46\%        \\ \hline
-			Hard            & 60         & 201\%     & 0\%           & 10\%         & 20\%         & 49\%        \\ \hline
+							 & HiLo  		 & Triangle		& Hard-Left	& 	Hard-Right 		& Hard		\\ \hline
+			Branch Coverage	 & 86\%          & 92\%      	& 77 \%      	& 70\%          & 54\%      \\ \hline
+			MCC Coverage	 & 79\%          & 90\%        	& 72 \%      	& 67\%          & 43\%      \\ \hline
+			Generations		 & 729           & 579          & 1290       	& 1096          & 1255      \\ \hline
+			Run Time		 & 2s          	 & 2s           & 7s       	 	& 7s          	& 19s       \\ \hhline{|=|=====|}
+			
+			Suite Size       & 7        	& 14       	 	& 24			& 19          	& 28        \\ \hline
+			\% Init Pop.     & 76\%         & 81\%       	& 43\%       	& 47\%         	& 46\%      \\ \hline
+			\% TestSuite GA  & 1\%          & 0\%       	& 18\%			& 1\%          	& 15\%       \\ \hline
+			\% TestCase  GA  & 23\%         & 19\%       	& 40\%      	& 52\%         	& 39\%       \\ \hline
+			\% L.O. (param)  & 0\%          & 0\%       	& 0\%			& 0\%          	& 0\%       \\ \hline
+			\% L.O. (zero)   & 0\%          & 0\%       	& 0\%      		& 0\%         	& 0\%       \\ \hline
 		\end{tabular}
 	\end{center}
-	\caption{Entire Alg, Suite size and \% contributions by test case generation method}
-	\label{tab:ContrAll}
+	\caption{No Local Optimization}  
+	\label{tab:CovAll}
 \end{table}
 
+
+
 \begin{table}[h!]
-	% Without GA	- 	Test Case Contributions
+	% Without GA
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
 	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
 	\begin{center}
-		\begin{tabular}{| l | c || c | c | c | c | c |}
+		
+		\def\arraystretch{1.3}%  1 is the default, change whatever you need
+		\setlength\tabcolsep{1em}
+		\begin{tabular}{| l | c  c  c  c c |}
 			\hline
-			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param) & L.O. (zero) \\ \hline
-			HiLo            & 9          & 57\%      & 0\%           & 0\%          & 12\%         & 31\%        \\ \hline
-			Triangle        & 15         & 75\%      & 0\%           & 0\%          & 11\%         & 14\%        \\ \hline
-			Medium-Hard-One & 30         & 35\%      & 0\%           & 0\%          & 37\%         & 28\%        \\ \hline
-			Medium-Hard-Two & 34         & 28\%      & 0\%           & 0\%          & 22\%         & 51\%        \\ \hline
-			Hard            & 60         & 21\%      & 0\%           & 0\%          & 25\%         & 53\%        \\ \hline
+							 & HiLo  		 & Triangle		& Hard-Left	& 	Hard-Right 		& Hard		\\ \hline
+			Branch Coverage	 & 78\%         & 59	\%      & 13 \%      	& 13\%          & 13\%      \\ \hline
+			MCC Coverage	 & 64\%         & 71 \%        & 6 \%      	& 6\%          & 6\%      \\ \hline
+			Run Time		 & 1s          	 & 6s           & 26s       	& 34s          	& 95s       \\ \hline
 		\end{tabular}
 	\end{center}
-	\caption{Without GA, Suite size and \% contributions by test case generation method} 
-	\label{tab:ContribNoGA}
-\end{table}
-
-\begin{table}[h!]
-	% No Local Optimization 	- 	Test Case Contributions
-	% Number of tests per point: 50 *)
-	% Maximum Generations: 10000 *)
-	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
-	\begin{center}
-		\begin{tabular}{| l | c || c | c | c | c | c |}
-			\hline
-			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param) & L.O. (zero) \\ \hline
-			HiLo            & 7          & 76\%      & 1\%           & 23\%         & 0\%          & 0\%         \\ \hline
-			Triangle        & 14         & 81\%      & 0\%           & 19\%         & 0\%          & 0\%         \\ \hline
-			Medium-Hard-One & 24         & 43\%      & 18\%          & 40\%         & 0\%          & 0\%         \\ \hline
-			Medium-Hard-Two & 19         & 47\%      & 1\%           & 52\%         & 0\%          & 0\%         \\ \hline
-			Hard            & 28         & 46\%      & 15\%          & 39\%         & 0\%          & 0\%         \\ \hline
-		\end{tabular}
-	\end{center}
-	\caption{No Local Opt, Suite size and \% contributions by test case generation method}
-	\label{tab:ContribNoLO}
-\end{table}
-
-
-
-
-\begin{table}[h!]
-% Random Searcher
-\begin{center}
-	\begin{tabular}{| l | c | c | c | c |}
-		\hline
-		CFG             & Branch Coverage & MCC Coverage & Run Time   \\ \hline
-		HiLo            & 78\%            & 64\%         & 1s         \\ \hline
-		Triangle        & 59\%            & 71\%         & 6s         \\ \hline
-		Medium-Hard-One & 13\%            & 6\%          & 26s        \\ \hline
-		Medium-Hard-Two & 13\%            & 6\%          & 34s        \\ \hline
-		Hard            & 13\%            & 6\%          & 95s        \\ \hline
-	\end{tabular}
-\end{center}
-
 \caption{Random Searcher \label{tab:randSrch}}
 \end{table}
 
