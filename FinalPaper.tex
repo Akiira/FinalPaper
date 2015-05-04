@@ -91,7 +91,7 @@ Pargas et al proposed the used of a control-dependence graph instead of a contro
 
 The newest genetic algorithms attempt to make use of past information in some way. In Beuno and Jino's research they used information about past runs of the genetic algorithm to influence the creation of the initial population used in a new run\cite{limits6}. ``The results with their six small test programs were promising.''\cite{limits6} Berndt et al try to take advantage of past information in a different way. Their algorithm includes a ``fossil record that records past organisms, allowing any current fitness calculations to be influence by past generation.''\cite{limits6}
 
-More recent work has been done by Gordon Fraser and Andrea Arcui in their development of the evolutionary test suite generator EvoSuite \cite{FraserTestSuites}. This is some of the earliest research using test suites instead of test cases for the organism's chromosome. Test cases are also unique in that they are composed of Java statements rather than the program's input parameters. Both test cases and test suites can change size during the simulation. EvoSuite has proven to be a powerful method for automatic test generation \cite{Fraser}.
+More recent work has been done by Gordon Fraser, Andrea Arcui, and others in their development of the evolutionary test suite generator EvoSuite \cite{FraserTestSuites}. This is some of the earliest research using test suites instead of test cases for the organism's chromosome. Test cases are also unique in that they are composed of Java statements rather than the program's input parameters. Both test cases and test suites can change size during the simulation. EvoSuite has proven to be a powerful method for automatic test generation \cite{Fraser}.
 
 
 
@@ -410,7 +410,7 @@ http://abacus.bates.edu/~ganderso/biology/resources/writing/HTWsections.html#dis
 
 \end{comment}
 \subsection{Parameter Tuning} 
-In hopes of finding an optimal combination of parameters for the GA, systematic tests were run to generate a number of 3D graphs representing slices of the 4D space of \{number of cut points, mutation prob., pop. size, number of generations\}. To this end the Hilo, Triangle, Med Hard 1, and Med Hard 2 each were evaluated with population sizes ranging from 5 to 100, number of cut points ranging from 1 to 4, and mutation probability ranging from 0 to 1. Population sizes were stepped by 5, cut points by 1, and mutation probability by 0.02. Thirty runs for each combination of parameters were averaged to get the reported results. 
+In hopes of finding an optimal combination of parameters for the GA, systematic tests were run on all the graphs just discussed. The details of these tests can be seen in Appendix A.
 
 The results on all graphs showed that none of the parameters made a substantial impact on the ability of the algorithm to find coverage. Coverage ratios were generally constant across the board for each graph, regardless of what parameters were used. The only exception being that if the population size was less than the number of ranges found in the initial range search, coverage suffered by as much as 10\%. For HiLo and Triangle the algorithm maxed out coverage in less than 100 generations. For the med hard graphs the number of generations varied by no more than 400 generations, and in a mostly random manner making it hard to claim any particular combination of parameters was better than another. This seemed to indicate that the initial range search, population generation, and local optimization functions account for the majority of the coverage obtained by the algorithm.
 
@@ -586,6 +586,22 @@ As a final sanity check, a completely random test case searcher was given the sa
 In general the results show that the entire algorithm results in superior coverage and uses lesser or equal to the number of generations than to achieve that coverage leaving out the genetic operators or local optimization
 
 \subsection{Future Work}
+
+\newpage
+\section*{Appendix A}
+
+The algorithm takes three input parameters, population size, mutation probability, and number of cut points. In order to find a good set of parameter, tests were run in which we kept just one variable constant while trying to optimize the other two. For example, a test would keep population size constant at 10 while letting the mutation probability range from 0.00 to 1.00 and letting the number of cut points range from 1 to 4. A ``step size'' is used to avoid trying too many values. We first test the mutation probability at 0.00 and then for the next test we step it up to its next value. Each parameter, with its starting value, ending value, and step size can be seen in the following table.
+
+\begin{table}[h]
+\begin{tabular}{l|l|l|l|l}
+	\cline{2-4}
+	                                 & Start & End & Step &  \\ \cline{1-4}
+	\multicolumn{1}{|l|}{Population} & 5     & 100 & 5    &  \\ \cline{1-4}
+	\multicolumn{1}{|l|}{Mutation}   & 0     & 1   & 0.05 &  \\ \cline{1-4}
+	\multicolumn{1}{|l|}{Cut Points} & 1     & 4   & 1    &  \\ \cline{1-4}
+\end{tabular}
+\end{table}
+
 
 \newpage
 \begin{thebibliography}{9}
