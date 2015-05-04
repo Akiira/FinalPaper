@@ -395,7 +395,20 @@ In an attempt to give the algorithm a more formidable test, this graph was custo
 Initial testing seemed to show that Hard CFG was a little too challenging for the algorithm. In addition it exceeded the scope of the problems algorithms such as these are typically evaluated against. Thus the Hard CFG was split at the root into two subtrees, which became Mad Hard 1 and Med Hard 2. The number of parameters was pruned down to 4, naturally each subtree has 39 edges, and due to how the cut was performed Med Hard one has 74 predicates while Med Hard 2 has 79 predicates.
 
 
+\begin{comment}
+Im gona make some cuts in this first paragraph. Most of what it says can be nice summarized by a table like we did for problem set one. I may throw it in the appnedix like we did then too, since this is not terribly important.
 
+Also, I read that you shouldn't interpret/discuss the results in the results section, just give them. Then discuss everything in the following discussion section. Because of that I was considering moving the second paragraph the the discussion section and rewording everything to make it fit but i'm not sure if i want to do this yet and would like your oppinion on it. 
+
+The stuff I have been reading about writing techincal papers has been coming from: http://abacus.bates.edu/~ganderso/biology/resources/writing/HTWtoc.html
+
+The 'Results' section is talked about:
+http://abacus.bates.edu/~ganderso/biology/resources/writing/HTWsections.html#results
+
+and the 'Discussion' section:
+http://abacus.bates.edu/~ganderso/biology/resources/writing/HTWsections.html#discussion
+
+\end{comment}
 \subsection{Parameter Tuning} 
 In hopes of finding an optimal combination of parameters for the GA, systematic tests were run to generate a number of 3D graphs representing slices of the 4D space of \{number of cut points, mutation prob., pop. size, number of generations\}. To this end the Hilo, Triangle, Med Hard 1, and Med Hard 2 each were evaluated with population sizes ranging from 5 to 100, number of cut points ranging from 1 to 4, and mutation probability ranging from 0 to 1. Population sizes were stepped by 5, cut points by 1, and mutation probability by 0.02. Thirty runs for each combination of parameters were averaged to get the reported results. 
 
