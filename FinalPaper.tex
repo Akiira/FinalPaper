@@ -1,5 +1,5 @@
 \documentclass[runningheads]{llncs}
-\usepackage[dvips]{graphicx}\usepackage{placeins}
+\usepackage{graphicx}\usepackage{placeins}
 \usepackage{fancyvrb}
 \usepackage[bf]{caption2}
 \usepackage{amssymb,amsmath}
@@ -543,28 +543,28 @@ The results on all graphs showed that none of the parameters made a substantial 
 \FloatBarrier
 \newpage
 \section{Discussion}
-In table \ref{tab:CovAll} we see that the overall branch and multiple condition coverage ratios achieved by the algorithm are quite high. Deeper analysis of the missing predicate for the triangle graph showed that it is actually unreachable, meaning the algorithm does in fact achieve 100\% coverage of this graph. In the case of the medium hard and hard graphs, the algorithm only failed to cover a very specific type of compound predicate. Namely, those which required two or more parameters to be exactly equal to each other, while also having the sum, the mean, and the standard deviations of the parameters falling within particular ranges. One could imagine adding a simple local optimization or test case generation heuristic that would attempt combinations of having several parameters equal to each other. With this, its likely that the algorithm could be extended to achieve 100\% coverage on all of these test programs. Despite these exciting results achieved when running the algorithm as a whole, the results of the algorithm without crossover and mutation, as well as the GA alone without local optimization bring into question their significance as well as the usefulness of the implemented CFGs as software testing benchmarks.
 
-%		ParameterTest	& 50\% 			  & 25\% 		 & 2s 	
-%       ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%
-%		ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%
-%		ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%
-%       ParameterTest   & 50\%            & 25\%         & 500         & 2s       \\ \hline
-%		ParameterTest   & 50\%            & 25\%         & 500         & 3s       \\ \hline
-%		ParameterTest   & 50\%            & 25\%         & 500         & 1s       \\ \hline
+In table \ref{tab:CovAll} we see that the overall branch and multiple condition coverage achieved by the algorithm is quite high. Deeper analysis of the missing predicate for the triangle graph showed that it is actually unreachable, meaning the algorithm does in fact achieve 100\% coverage of this graph. In the case of the medium hard and hard graphs, the algorithm only failed to cover a very specific type of compound predicate. Namely, those which required two or more parameters to be exactly equal to each other, while also having the sum, the mean, and the standard deviations of the parameters falling within particular ranges. Despite this high initial coverage, the results in table 2 and 3 bring into question their significance as well as the usefulness of the implemented CFGs as software testing benchmarks.
 
-As suspected from the parameter tuning tests, the algorithm achieves very similar coverage of the implemented CFGs with or without the crossover and mutation operators. From table \ref{tab:ContrAll} we see that when running the entire algorithm, anywhere from 75 to 85\% of the test cases that make up the final test suites for the medium hard and hard graphs were either present in the initial population or were generated as the result of one of the local optimization heuristics. Comparison of table \ref{tab:CovAll} with table \ref{tab:ContribNoGA} and table \ref{tab:ContrAll} with \ref{tab:ContribNoGA} show that cutting out mutation and crossover all together does not significantly change the coverage achieved by the algorithm. In one sense this means that the FindGoodRanges procedure can be extremely effective in discovering ranges of parameters that traverse different paths of the CFG., and furthermore the combination of LocalOptFromZero and LocalOptFromParameters perform quite in finding test cases that navigate the delicate and complex relationships between the sums, means, standard deviations, and ranges of the parameters. In another sense, this may be an indication that the Hard CFG was not as challenging as expected and thus does not form a good benchmark for the algorithm.
+Table \ref{tab:CovNoGA} clearly shows that the algorithm achieves very similar coverage with or without the crossover and mutation operators; achieving in the best-case just 6\% more branch coverage and 4\% more condition coverage. There are now two warning signs that the approach taken with this genetic algorithm may not be correct, namely, the fact that tweaking the input parameters had little effect, and now, the fact the algorithm performed almost just as well without the genetic algorithm operators. 
 
-Although the initial range search and local optimizations are able to achieve most of the coverage on their own, the entire algorithm still outperformed the runs without crossover and mutation by as much as 6\% branch coverage and 4\% predicate coverage on the hard and medium hard CFGs. Thus, the genetic operators are not completely disposable. In addition, even without local optimization the GA still achieves respectable levels of coverage on each of the graphs in only a fourth of the time taken by the algorithm with the local optimization included. This striking time difference demonstrates that although the local opts perform quite well and can find a significant number of test cases and coverage missed by the GA alone, they do not scale well and would not be near as valuable on larger more complex programs. 
+To test the algorithm's validity a new CFG was implemented. This new graph, called ParameterTest, was designed in such a way that it should be incredibly easy to solve by both humans and any other modern GA generating tests cases. The CFG can be seen in figure \ref{fig:ParameterTestCFG}. This program consists of just two inputs and one if-statement; any human should quickly be able to see that the inputs int.min and int.max would reach the ``hard'' edge and predicate. The GA presented here does not just fail on the graph it fails spectacularly. In thousands of simulations, it never got above 50\% edge coverage and 25\% condition coverage; since there are only four conditions to cover, this means that it never managed to cover anything except the easiest condition. Thus, we could have used an even easier CFG, one in which the ``hard'' predicate in ParameterTest is an ``or'' predicate, and the GA still would not have been able to cover it. After noticing this problem, the local optimization or range search could have been tweaked to also work on this specific graph but we would be fixing the symptom not the disease. 
 
-As a final sanity check, a completely random test case searcher was given the same amount of time as the algorithm on each graph. As expected the algorithm dramatically improves upon a random search.
- 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\linewidth]{ParameterTestCFG}
+\caption{ParameterTestCFG}
+\label{fig:ParameterTestCFG}
+\end{figure}
+
+The disease that ails the algorithm is most likely over designing to specific tests. This lead to some fundamental flaws in the handling of ranges and local optimization. The initial range search uses a single range for all parameters in a test case; if having all parameters in the same range fails to cover anything new then the range is declared not useful. This means if some coverage requires parameters from separate ranges, and these ranges are only useful when combined, the algorithm will perform on par with random search in its attempts to get that coverage. The LocalOptFromZero algorithm also fails miserably if coverage does not require parameters in the neighborhood of zero. When both these techniques were implemented coverage increased, and they were both tweaked to increase coverage even more; this gave the false impression the algorithm was getting better, but increasing coverage on the small number of CFGs at our disposal is not the same thing as increases quality of the algorithm.
+
+
+
 
 \newpage
 \section{Conclusion}
 
-
-In general the results show that the entire algorithm results in superior coverage and uses lesser or equal to the number of generations than to achieve that coverage leaving out the genetic operators or local optimization
 
 \subsection{Future Work}
 
