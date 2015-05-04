@@ -27,7 +27,6 @@ Middletown, PA 17057\\
 This paper applies techniques of genetic algorithms to the problem of finding test suites that cover every edge or predicate in a programs control flow graph. It differs in other applications of genetic algorithms to software testing in that the organisms are test suites rather than test cases. Experimental results show....
 \end{abstract}
 
-
 \section{TODO}
 
 \begin{itemize}
@@ -57,6 +56,7 @@ This paper applies techniques of genetic algorithms to the problem of finding te
 \item Read over the copy and pasted sections from proposal to make sure it all makes sense in this new context.
 \item General: find any thing that needs reworded, pruned, etc and fix.
 \end{itemize}
+
 
 \section{Introduction}
 Software testing is a tedious and expensive process, costing as much as 50\% of a projects budget \cite{meyers1}. One reason for this is the fact that the input domain for programs tends to be extremely large, often times infinite; this makes it impossible to test all possible inputs for a program \cite{meyers1}. Thus, testers spend a large portion of their time simply searching/designing good tests. One aspect of automatic testing research aims to alleviate this burden via the automatic generation of tests.
@@ -118,6 +118,8 @@ The following section has been broken down into the subsections for each major a
 \begin{comment}
 Do you think this name is ok? I ask because techincally it shows both the initialization and the main loop. 
 We could call it somthing like 'Algorithm Overview' or 'Simulation Algorithm'.
+
+I dont know, I can't decide...
 \end{comment}
 \subsubsection{Main Simulation Loop}
 
@@ -230,7 +232,7 @@ The algorithm assigns fitness for an organism based off both its coverage and th
 
 Test suites and test cases each have their own crossover operator. Both operators use normal k-point crossover and fitness proportional selection. However, the test case operator only selects one test suite and then selects test cases at random from that test suite to crossover. The simulation attempts test case crossover several times before giving up; this is to increase the chance of finding good parameter combinations, assuming the range search has narrowed in on good ranges.
 
-Mutation and replacement immediately follow both forms of crossover. The simulation uses point mutations in both cases, each with probability $P_m$. For test suites, mutation involves creating a new test cases out of the most useful ranges in the range set. After test suite crossover, the algorithm always replaces both parents. For test cases, mutation involves changing a parameter to a new value selected using a normal distribution around the parameter's original value. Child test cases only find their way into the parent test suite if they offer new coverage. 
+Mutation and replacement immediately follow both forms of crossover. Both the test suite and test case mutation operators use the same probability $P_m$. Test suite mutation involves creating new test cases out of the most useful ranges in the range set. These are added to the child test suites only if they offer new coverage and in such a way to ensure no previous coverage is lost. After test suite crossover and mutation, the algorithm always replaces both parents. For test cases, mutation involves changing a parameter to a new value selected using a normal distribution around the parameter's original value. Child test cases only find their way into the parent test suite if they offer new coverage. 
 
 Even though these two operators are similar they each serve a different purpose. Test suite crossover causes a greater change in the partaking organisms by swapping a significant number of entire test cases between the parents. Since, each test case was created with certain ranges, this also has the effect of mixing up the ranges in a test suite. Since this is a disruptive operation, the algorithm performs test suite crossover only after several generations of no improvement in coverage. Test case crossover, on the other hand, makes much smaller changes to a test suite, by mixing up the parameters between two test cases. Thus the ranges of parameters available within the organism do not change, but the coverage of the suite may improve as a result. This was designed to be the main genetic operator for test case search, and thus is run every generation. The hope is that test suite crossover will help the suite get the needed ranges and then test case crossover will be able to combine those ranges into more useful test cases.
 
@@ -387,8 +389,8 @@ The triangle problem is a very common introductory problem in the field of softw
 \subsubsection{Hard CFG}
 In an attempt to give the algorithm a more formidable test, this graph was custom designed. The idea was to have some more complex relationships between the parameters dictate the shifts in control flow. Thus in addition to conditional statements involving the traditional comparison operators between parameters, this graph utilizes the mean, standard deviation, and the sum of the parameters in its predicates. This graph takes the form of a perfect binary tree and is generally symmetric in nature as far as the types of predicates in corresponding blocks of the left and right subtrees. The hard CFG has 10 parameters, 31 blocks, 78 edges, and 150 predicates.
 
-\subsubsection{Med Hard 1 and Med Hard 2 CFGs}
-Initial testing seemed to show that Hard CFG was a little too challenging for the algorithm. In addition it exceeded the scope of the problems algorithms such as these are typically evaluated against. Thus the Hard CFG was split at the root into two subtrees, which became Mad Hard 1 and Med Hard 2. The number of parameters was pruned down to 4, naturally each subtree has 39 edges, and due to how the cut was performed Med Hard one has 74 predicates while Med Hard 2 has 79 predicates.
+\subsubsection{HardLeft and HardRight CFG}
+The hard graph is quite a bit larger than benchmark tests used by previous researchers. In addition, initial speculation of results on Hard CFG, seemed to indicate that the right subtree was more difficult to cover than the right subtree. To analyze this more closely, the Hard CFG was split at the root into two subtrees, which became HardLeft and HardRight. The number of parameters was pruned down to 4, each subtree has 39 edges, and due to how the cut was performed HardLeft has 74 predicates while HardRight has 79 predicates.
 
 \subsection{Parameter Tuning} 
 In hopes of finding an optimal combination of parameters for the GA, systematic tests were run on all the graphs just discussed. The details of these tests can be seen in Appendix A.
@@ -399,7 +401,7 @@ The results on all graphs showed that none of the parameters made a substantial 
 \paragraph{Setup}Since no particular set of parameters seemed to prevail over others, we chose to run our final tests somewhat arbitrarily with a population size of 25, 0.5 mutation probability, and 2 cut points. In order to further investigate the efficacy of the various operators, four categories of final tests were performed on each of the CFGs. First, we evaluated each CFG against the entire algorithm as described in section \ref{sec:Alg}. Then, to determine the effectiveness of the local optimization alone, we cut out all calls to test case and test suite crossover and mutation. To determine the extent the genetic operators are capable of finding good test cases, we evaluated each CFG against the algorithm without any calls to either local optimization heuristics. Finally, each CFG was run against a completely random search for comparison. The random search was given the same amount of time as the average time taken by a run of the entire algorithm on each graph. Each test was repeated 50 times and the results shown in the following tables represent the averages obtained. 
 
 
-\paragraph{Description of Tables} Table \ref{tab:CovAll} reports the average branch and multiple condition coverage achieved by running the entire algorithm. Table \ref{tab:ContrAll} reports the average size, in number of test cases, of the test suites that resulted from the runs in table \ref{tab:CovAll}. In addition, Table \ref{tab:ContrAll} reports the percentage of the test cases in the final suite that came from each of the algorithm's five test case sources. Recall, test cases present in the initial population have all of their parameters sourced from a single range found during the FindGoodRanges procedure. Tests resulting from test suite mutation are built by mixing parameters from the most useful ranges in the range set, which are sampled with replacement from the range set using a usefulness proportional selection scheme. The last three columns refer to test cases resulting from the TestCaseCrossover, LocalOptFromParameters, and LocalOptFromZero procedures respectively. Tables \ref{tab:CovNoGA} and \ref{tab:CovNoLO} have the structure as table \ref{tab:CovAll} while tables \ref{tab:ContribNoGA} and \ref{tab:ContribNoLO} have the same structure as table \ref{tab:ContrAll}, but correspond to the two partial forms of the algorithm mentioned in the Setup paragraph above. These allow for more thorough analysis of the roles played by each major operator in the algorithm, and enable us to draw some better conclusions about their search power.
+\paragraph{Description of Tables} Tables \ref{tab:entireAlg}, \ref{tab:noGA}, and \ref{tab:noLO} report the results from running the entire algorithm, the algorithm without genetic operators, and the algorithm without local optimization respectively. The top halves of the tables report the average branch and multiple condition coverage ratios, as well as the number of generations taken and the average run time of the simulation. In the lower portion of the tables, the reader will find the average size, in number of test cases, of the test suites that resulted from the runs in table, as well as the percentage of test cases in the final suite that came from each of the algorithm's five test case sources. Table \ref{tab:randSrch} contains the coverage ratios achieved by a completely random searcher given the same amount of time taken by the algorithm to get the results in Table \ref{tab:entireAlg}.
 
 \begin{table}[h!]
 	% Entire Algorithm
@@ -407,8 +409,7 @@ The results on all graphs showed that none of the parameters made a substantial 
 	% Maximum Generations: 10000 *)
 	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
 	\begin{center}
-		
-		\def\arraystretch{1.3}%  1 is the default, change whatever you need
+		\def\arraystretch{1.2}%  1 is the default, change whatever you need
 		\setlength\tabcolsep{1em}
 		\begin{tabular}{| l | c  c  c  c c |}
 			\hline
@@ -420,14 +421,14 @@ The results on all graphs showed that none of the parameters made a substantial 
 			
 			Suite Size       & 9        	& 15       	 	& 30			& 34          	& 60        \\ \hline
 			\% Init Pop.     & 58\%         & 75\%       	& 35\%       	& 28\%         	& 21\%      \\ \hline
-			\% TestSuite GA  & 0\%          & 0\%       	& 0\%			& 0\%          	& 0\%       \\ \hline
-			\% TestCase GA  & 2\%          & 5\%       	& 10\%      	& 11\%         	& 10\%      \\ \hline
+			\% TestSuite Op  & 0\%          & 0\%       	& 0\%			& 0\%          	& 0\%       \\ \hline
+			\% TestCase Op   & 2\%          & 5\%       	& 10\%      	& 11\%         	& 10\%      \\ \hline
 			\% 	L.O. (param) & 9\%          & 9\%       	& 32\%       	& 14\%          & 20\%      \\ \hline
 			\% L.O. (zero)	 & 31\%         & 11\%      	& 23\%       	& 46\%          & 49\%      \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Entire algorithm}  
-	\label{tab:CovAll}
+	\label{tab:entireAlg}
 \end{table}
 
 \begin{table}[h!]
@@ -437,7 +438,7 @@ The results on all graphs showed that none of the parameters made a substantial 
 	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
 	\begin{center}
 		
-		\def\arraystretch{1.3}%  1 is the default, change whatever you need
+		\def\arraystretch{1.2}%  1 is the default, change whatever you need
 		\setlength\tabcolsep{1em}
 		\begin{tabular}{| l | c  c  c  c c |}
 			\hline
@@ -449,14 +450,14 @@ The results on all graphs showed that none of the parameters made a substantial 
 																
 			Suite Size       & 9        	& 15       	 	& 30			& 34          	& 60        \\ \hline
 			\% Init Pop.     & 57\%         & 75\%       	& 35\%       	& 28\%         	& 21\%      \\ \hline
-			\% TestSuite GA  & 0\%          & 0\%       	& 0\%			& 0\%          	& 0\%       \\ \hline
-			\% TestCase  GA  & 0\%          & 0\%       	& 0\%      		& 0\%         	& 0\%       \\ \hline
+			\% TestSuite Op  & 0\%          & 0\%       	& 0\%			& 0\%          	& 0\%       \\ \hline
+			\% TestCase  Op  & 0\%          & 0\%       	& 0\%      		& 0\%         	& 0\%       \\ \hline
 			\% 	L.O. (param) & 12\%         & 11\%       	& 37\%       	& 22\%          & 25\%      \\ \hline
 			\% L.O. (zero)	 & 31\%         & 14\%      	& 28\%       	& 51\%          & 53\%      \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Without Crossover and Mutation}  
-	\label{tab:CovAll}
+	\label{tab:noGA}
 \end{table}
 
 \begin{table}[h!]
@@ -466,7 +467,7 @@ The results on all graphs showed that none of the parameters made a substantial 
 	% {Population Size: 25, Cut Points: 2, Mutation Prob: 0.5} 
 	\begin{center}
 		
-		\def\arraystretch{1.3}%  1 is the default, change whatever you need
+		\def\arraystretch{1.2}%  1 is the default, change whatever you need
 		\setlength\tabcolsep{1em}
 		\begin{tabular}{| l | c  c  c  c c |}
 			\hline
@@ -478,18 +479,15 @@ The results on all graphs showed that none of the parameters made a substantial 
 			
 			Suite Size       & 7        	& 14       	 	& 24			& 19          	& 28        \\ \hline
 			\% Init Pop.     & 76\%         & 81\%       	& 43\%       	& 47\%         	& 46\%      \\ \hline
-			\% TestSuite GA  & 1\%          & 0\%       	& 18\%			& 1\%          	& 15\%       \\ \hline
-			\% TestCase  GA  & 23\%         & 19\%       	& 40\%      	& 52\%         	& 39\%       \\ \hline
+			\% TestSuite Op  & 1\%          & 0\%       	& 18\%			& 1\%          	& 15\%       \\ \hline
+			\% TestCase  Op  & 23\%         & 19\%       	& 40\%      	& 52\%         	& 39\%       \\ \hline
 			\% L.O. (param)  & 0\%          & 0\%       	& 0\%			& 0\%          	& 0\%       \\ \hline
 			\% L.O. (zero)   & 0\%          & 0\%       	& 0\%      		& 0\%         	& 0\%       \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{No Local Optimization}  
-	\label{tab:CovAll}
+	\label{tab:noLO}
 \end{table}
-
-
-
 \begin{table}[h!]
 	% Without GA
 	% Number of tests per point: 50 *)
@@ -513,7 +511,7 @@ The results on all graphs showed that none of the parameters made a substantial 
 \FloatBarrier
 \newpage
 \section{Discussion}
-In table \ref{tab:CovAll} we see that the overall branch and multiple condition coverage ratios achieved by the algorithm are quite high. Deeper analysis of the missing predicate for the triangle graph showed that it is actually unreachable, meaning the algorithm does in fact achieve 100\% coverage of this graph. In the case of the medium hard and hard graphs, the algorithm only failed to cover a very specific type of compound predicate. Namely, those which required two or more parameters to be exactly equal to each other, while also having the sum, the mean, and the standard deviations of the parameters falling within particular ranges. One could imagine adding a simple local optimization or test case generation heuristic that would attempt combinations of having several parameters equal to each other. With this, its likely that the algorithm could be extended to achieve 100\% coverage on all of these test programs. Despite these exciting results achieved when running the algorithm as a whole, the results of the algorithm without crossover and mutation, as well as the GA alone without local optimization bring into question their significance as well as the usefulness of the implemented CFGs as software testing benchmarks.
+In table \ref{tab:entireAlg} we see that the overall branch and multiple condition coverage ratios achieved by the algorithm are quite high. Deeper analysis of the missing predicate for the triangle graph showed that it is actually unreachable, meaning the algorithm does in fact achieve 100\% coverage of this graph. In the case of the hard graphs, the algorithm only failed to cover a very specific type of compound predicate. Namely, those which required two or more parameters to be exactly equal to each other, while also having the sum, the mean, and the standard deviations of the parameters falling within particular ranges. One could imagine adding a simple local optimization or test case generation heuristic that would attempt combinations of having several parameters equal to each other. With this, its likely that the algorithm could be extended to achieve 100\% coverage on all of these test programs. Despite these exciting results achieved when running the algorithm as a whole, the results of the algorithm without crossover and mutation, as well as the GA alone without local optimization bring into question their significance as well as the usefulness of the implemented CFGs as software testing benchmarks.
 
 %		ParameterTest	& 50\% 			  & 25\% 		 & 2s 	
 %       ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%
@@ -523,18 +521,15 @@ In table \ref{tab:CovAll} we see that the overall branch and multiple condition 
 %		ParameterTest   & 50\%            & 25\%         & 500         & 3s       \\ \hline
 %		ParameterTest   & 50\%            & 25\%         & 500         & 1s       \\ \hline
 
-As suspected from the parameter tuning tests, the algorithm achieves very similar coverage of the implemented CFGs with or without the crossover and mutation operators. From table \ref{tab:ContrAll} we see that when running the entire algorithm, anywhere from 75 to 85\% of the test cases that make up the final test suites for the medium hard and hard graphs were either present in the initial population or were generated as the result of one of the local optimization heuristics. Comparison of table \ref{tab:CovAll} with table \ref{tab:ContribNoGA} and table \ref{tab:ContrAll} with \ref{tab:ContribNoGA} show that cutting out mutation and crossover all together does not significantly change the coverage achieved by the algorithm. In one sense this means that the FindGoodRanges procedure can be extremely effective in discovering ranges of parameters that traverse different paths of the CFG., and furthermore the combination of LocalOptFromZero and LocalOptFromParameters perform quite in finding test cases that navigate the delicate and complex relationships between the sums, means, standard deviations, and ranges of the parameters. In another sense, this may be an indication that the Hard CFG was not as challenging as expected and thus does not form a good benchmark for the algorithm.
+As suspected from the parameter tuning tests, the algorithm achieves very similar coverage of the implemented CFGs with or without the crossover and mutation operators. From table \ref{tab:entireAlg} we see that when running the entire algorithm, anywhere from 75 to 90\% of the test cases that make up the final test suites for the hard graphs were either present in the initial population or were generated as the result of one of the local optimization heuristics. Comparison of table \ref{tab:entireAlg} with table \ref{tab:noGA} shows that cutting out mutation and crossover all together does not significantly change the coverage achieved by the algorithm. In one sense this means that the FindGoodRanges procedure can be extremely effective in discovering ranges of parameters that traverse different paths of the CFG. Furthermore, LocalOptFromZero and LocalOptFromParameters perform quite well in finding test cases that navigate the delicate and complex relationships between the sums, means, standard deviations, and ranges of the parameters. In another sense, this may be an indication that the Hard CFG was not as challenging as expected and thus does not form a good benchmark for the algorithm.
 
-Although the initial range search and local optimizations are able to achieve most of the coverage on their own, the entire algorithm still outperformed the runs without crossover and mutation by as much as 6\% branch coverage and 4\% predicate coverage on the hard and medium hard CFGs. Thus, the genetic operators are not completely disposable. In addition, even without local optimization the GA still achieves respectable levels of coverage on each of the graphs in only a fourth of the time taken by the algorithm with the local optimization included. This striking time difference demonstrates that although the local opts perform quite well and can find a significant number of test cases and coverage missed by the GA alone, they do not scale well and would not be near as valuable on larger more complex programs. 
+The results for the percent contributions of test cases from test suite mutation are concerning and shed light on a clear weak point of the algorithm. Tables \ref{tab:entireAlg} and \ref{tab:noLO} show that this operator almost never succeeded in generating useful test cases. As mentioned briefly in section \ref{sec:Alg}, this operator attempts to combine parameters selected from the most useful ranges in the range set into test cases. Selection of ranges is done proportional to the usefulness of the ranges in the set. Therefore, the fact that it fails to generate good test cases seems to indicate that the method used to assign usefulness values to ranges, as well as adapt the contents of the range set based on usefulness, are likely flawed and need to be revisited.
 
-As a final sanity check, a completely random test case searcher was given the same amount of time as the algorithm on each graph. As expected the algorithm dramatically improves upon a random search.
- 
+Although the initial range search and local optimizations are able to achieve most of the coverage on their own, the entire algorithm still outperformed the runs without crossover and mutation by as much as 7\% branch coverage and 4\% predicate coverage on the hard CFGs. Thus, the genetic operators are not completely disposable. Even without local optimization, the GA still achieves respectable levels of coverage on each of the graphs in only a fourth of the time taken by the algorithm with the local optimization included. This striking time difference demonstrates that although the local opts perform quite well and can find a significant number of test cases and coverage missed by the GA alone, they do not scale well and would not be near as valuable on larger more complex programs.
 
 \newpage
 \section{Conclusion}
 
-
-In general the results show that the entire algorithm results in superior coverage and uses lesser or equal to the number of generations than to achieve that coverage leaving out the genetic operators or local optimization
 
 \subsection{Future Work}
 
