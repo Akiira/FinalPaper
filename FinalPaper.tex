@@ -492,20 +492,20 @@ The results on all graphs showed that none of the parameters made a substantial 
 
 
 \begin{table}[h!]
-% Random Searcher
-\begin{center}
-	\begin{tabular}{| l | c | c | c | c |}
-		\hline
-		CFG             & Branch Coverage & MCC Coverage & Run Time   \\ \hline
-		HiLo            & 78\%            & 64\%         & 1s         \\ \hline
-		Triangle        & 59\%            & 71\%         & 6s         \\ \hline
-		Medium-Hard-One & 13\%            & 6\%          & 26s        \\ \hline
-		Medium-Hard-Two & 13\%            & 6\%          & 34s        \\ \hline
-		Hard            & 13\%            & 6\%          & 95s        \\ \hline
-	\end{tabular}
-\end{center}
-
-\caption{Random Search \label{tab:randSrch}}
+	% Random Searcher
+	\begin{center}
+		
+		\def\arraystretch{1.3}%  1 is the default, change whatever you need
+		\setlength\tabcolsep{1em}
+		\begin{tabular}{| l | c  c  c  c c |}
+			\hline
+			& HiLo  		 & Triangle		& Hard-Left	& 	Hard-Right 		& Hard		\\ \hline
+			Branch Coverage	 & 78\%         & 59	\%      & 13 \%      	& 13\%          & 13\%      \\ \hline
+			MCC Coverage	 & 64\%         & 71 \%        & 6 \%      	& 6\%          & 6\%      \\ \hline
+			Run Time		 & 1s          	 & 6s           & 26s       	& 34s          	& 95s       \\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{Random Search \label{tab:randSrch}}
 \end{table}
 
 \FloatBarrier
