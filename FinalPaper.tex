@@ -30,6 +30,10 @@ This paper applies techniques of genetic algorithms to the problem of finding te
 \section{TODO}
 
 \begin{itemize}
+\item Make nomenclature consistent, so if its called Medium-One somewhere and Medium-Hard somewhere else we need to pick one
+     \begin{itemize}
+     \item For the medium whatever graphs, I was thinking the name HardLeft and HardRight would be better names, thoughts?
+     \end{itemize}
 \item Add any missing citations
 \item Decide if to use FloatBarrier or not
 \item Finish the abstract
@@ -41,6 +45,9 @@ This paper applies techniques of genetic algorithms to the problem of finding te
      \begin{itemize}
      \item I think this is pretty much done. Not sure if the parameter test should be in the tables
 	     or just discussed in a more theoretical context.
+	     \begin{itemize}
+          \item I think its fine to just discuss it afterwards.
+         \end{itemize}
      \end{itemize}
 \item Discussion Section
      \begin{itemize}
@@ -112,6 +119,10 @@ The algorithm attempts to find a set of promising ranges using this assumption. 
 
 The following section has been broken down into the subsections for each major aspect of the proposed algorithm. First, the main simulation loop is provided to give context throughout the rest of the sections. The notion of input parameter ranges and the simulation's range set is then introduced, followed by a discussion of the population initialization. Fitness calculation and association with organisms is explored; then the tools used for test case generation, including test case crossover and mutation, test suite crossover and mutation, local optimization and range set adaptation are studied.
 
+\begin{comment}
+Do you think this name is ok? I ask because techincally it shows both the initialization and the main loop. 
+We could call it somthing like 'Algorithm Overview' or 'Simulation Algorithm'.
+\end{comment}
 \subsubsection{Main Simulation Loop}
 
 %============================= Main Loop Alg =====================
@@ -217,20 +228,15 @@ During initialization each organism in the population uses only a single range f
 The algorithm maintains three levels of coverage metadata for the purposes of fitness calculation. First, each test case is assigned coverage by running it against the CFG. Each test suite then maintains counts of the number of times its constituent test cases covered each edge and predicate. Finally, the population maintains sums of the coverage counts across all of the test suites.
 
 \paragraph{Fitness Sharing}
-The algorithm assigns fitness for an organism based off both its coverage and the population's coverage; this is a form of fitness sharing. Each edge or predicate has a base score associated with it. The score for a particular edge or predicate is split amongst all the test suites that cover it. The motivation for using fitness sharing is the following: if many organisms cover a particular edge, then it must be easy to reach and thus organisms should receive less fitness for covering it; however, if only one organism in the population covers an edge, then that organism should receive a higher fitness. Furthermore if a edge is covered by multiple organisms, but only a handful of times population wide, the organisms that cover that edge should receive more fitness than organisms who cover an edge that has been covered a very large number of times population wide.
-
-\begin{comment} Probably not needed.
-\subsubsection{Test Case Generation and Search} 
-The main test case search occurs by crossing over and mutating test cases within organisms, as well as applying local optimization heuristics that manipulate or replace an organism's test cases. As mentioned above the algorithm begins by thoroughly searching the space of possible test cases composed of parameters from singular ranges of the range set. After many generations of no improvements using test case crossover and local optimization, the algorithm performs two key perturbation procedures. First the range set adapts itself based on information learned regarding the fruitfulness of its constituent ranges. Then test suite crossover and mutation are applied to mix up the available input parameters inside of test suites.
-\end{comment}
+The algorithm assigns fitness for an organism based off both its coverage and the population's coverage; this is a form of fitness sharing. Each edge or predicate has a base score associated with it. The score for a particular edge or predicate is split amongst all the test suites that cover it. The motivation for using fitness sharing is the following: if many organisms cover a particular edge, then it must be easy to reach and thus organisms should receive less fitness for covering it; however, if only one organism in the population covers an edge, then that organism should receive a higher fitness. 
 
 \subsubsection{Crossover, Mutation, and Replacement}
 
 Test suites and test cases each have their own crossover operator. Both operators use normal k-point crossover and fitness proportional selection. However, the test case operator only selects one test suite and then selects test cases at random from that test suite to crossover. The simulation attempts test case crossover several times before giving up; this is to increase the chance of finding good parameter combinations, assuming the range search has narrowed in on good ranges.
 
-Mutation and replacement immediately follow both forms of crossover. The simulation uses point mutations in both cases, each with probability $P_m$. For test suites, mutation involves creating a new test cases out of the most useful ranges in the range set. After test suite crossover, the algorithm always replaces both parents. For test cases, mutation involves changing the parameters to new values generated using a normal distribution around the parameters' original values. Child test cases only find their way into the parent test suite if they offer new coverage. 
+Mutation and replacement immediately follow both forms of crossover. The simulation uses point mutations in both cases, each with probability $P_m$. For test suites, mutation involves creating a new test cases out of the most useful ranges in the range set. After test suite crossover, the algorithm always replaces both parents. For test cases, mutation involves changing a parameter to a new value selected using a normal distribution around the parameter's original value. Child test cases only find their way into the parent test suite if they offer new coverage. 
 
-Even though these two operators are similar they each serve a different purpose. Test suite crossover causes a greater change in the partaking organisms by swapping a significant number of entire test cases between the parents. Since, each test case was created with certain ranges, this also has the effect of mixing up the ranges in a test suite. Since this is a disruptive operation, the algorithm performs test suite crossover only after several generations of no improvement in coverage. Test case crossover, on the other hand, makes much smaller changes to a test suite, by mixing up the parameters between two test cases. Thus the ranges of parameters available within the organism do not change, but the coverage of the suite may improve as a result. This was designed to be the main genetic operator for test case search, and thus is run every generation. The hope is that test suite crossover will help the test suite get the ranges it needs to find new coverage and then test case crossover will be able to combine those parameters into more useful test cases.
+Even though these two operators are similar they each serve a different purpose. Test suite crossover causes a greater change in the partaking organisms by swapping a significant number of entire test cases between the parents. Since, each test case was created with certain ranges, this also has the effect of mixing up the ranges in a test suite. Since this is a disruptive operation, the algorithm performs test suite crossover only after several generations of no improvement in coverage. Test case crossover, on the other hand, makes much smaller changes to a test suite, by mixing up the parameters between two test cases. Thus the ranges of parameters available within the organism do not change, but the coverage of the suite may improve as a result. This was designed to be the main genetic operator for test case search, and thus is run every generation. The hope is that test suite crossover will help the suite get the needed ranges and then test case crossover will be able to combine those ranges into more useful test cases.
 
 %============================= Test Case Cross Alg =====================
 \begin{figure}[h!]
@@ -266,27 +272,8 @@ $\hbox{TestCaseCrossover}(cutPts, P_m)$
 \subsubsection{Local Optimization}
 
 Two simple local optimization techniques are used, but the structure of both is very similar. The LocalOptFromParameters function will take a test case and, beginning with a small neighborhood size, will begin looking at other test cases in the neighborhood of that test case. The LocalOptFromZero function tries to pull the test case's parameters closer to zero. This was added because values in the neighborhood of zero, such as 1, -1, or 0, can drastically alter the flow of the program being tested, but because the search space was so large, the simulation was unable to find these values without help. Both functions explore each neighborhood several times, then expand the neighborhood to try again if no new coverage could be found. The TryLocalOptimization procedure called from the main simulation loop chooses, with equal probability, one of these heuristics to apply. If at any point during either procedure a test case is found that offers new coverage to the simulation, it is added to the organism by replacing a duplicate test case.
-\begin{comment}
+
 %============================= Local Opt Alg =====================
-\begin{figure}[h!]
-\begin{center}
-\hrule
-\medskip
-\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
-codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
-$\hbox{TryLocalOptimization}()$
-      $org\leftarrow$$P$.Select()
-		
-      Randomaly select one of the two local opt functions and try it on a 
-         duplicate test case from $org$, store results in$ tc $
-		
-      if$ tc $ is not null replace a duplicate test case in$ org $ with tc
-\end{Verbatim}
-\hrule
-\end{center}
-\caption{Algorithm for selection of a local optimization \label{fig:lcOpt}}
-\end{figure
-\end{comment}
 \begin{figure}[h!]
 	\begin{center}
 		\hrule
@@ -380,6 +367,9 @@ The algorithm has three potential stopping criteria.
 	\item 10000 generations have passed.
 \end{enumerate}
 
+\begin{comment}
+Maybe this should be called Summary or 'Algorithm Summary' so the reader doesnt think its the actual conclusion
+\end{comment}
 \subsubsection{Conclusion}
 The proposed genetic algorithm seeks to generate a test suite with maximal coverage by utilizing a simplifying assumption of the relationships between input parameters. First, the algorithm finds a set of promising ranges that give unique coverage when used as the sole source of parameter values. Then a genetic algorithm, with the help of local optimization and range set adaptation, searches the space of possible test cases stemming from the most promising combinations of these ranges to build a test suite with maximal branch and multiple condition coverage. The results of our tests are promising, however further inspection uncovered that the majority of the test cases that made it into the final test suite originated from the initial population and local optimization, and the genetic search did not work as well as we hoped. 
 
@@ -412,11 +402,12 @@ In hopes of finding an optimal combination of parameters for the GA, systematic 
 The results on all graphs showed that none of the parameters made a substantial impact on the ability of the algorithm to find coverage. Coverage ratios were generally constant across the board for each graph, regardless of what parameters were used. The only exception being that if the population size was less than the number of ranges found in the initial range search, coverage suffered by as much as 10\%. For HiLo and Triangle the algorithm maxed out coverage in less than 100 generations. For the med hard graphs the number of generations varied by no more than 400 generations, and in a mostly random manner making it hard to claim any particular combination of parameters was better than another. This seemed to indicate that the initial range search, population generation, and local optimization functions account for the majority of the coverage obtained by the algorithm.
 
 \subsection{Results}
-\paragraph{Setup}Since no particular set of parameters seemed to prevail of others, we chose to run our final tests somewhat arbitrarily with a population size of 25, 0.5 mutation probability, and 2 cut points. In order to further investigate the efficacy of the various operators, four categories of final tests were performed on each of the CFGs. First, we evaluated each CFG against the entire algorithm as described in section 5.1. Then, to determine the effectiveness of the local optimization alone, we cut out all calls to test case and test suite crossover and mutation. To determine to what extent the genetic operators are capable of finding good test cases, we evaluated each CFG against the algorithm without any calls to either local optimization heuristics. Finally, each CFG was run against a completely random searcher for comparison. The random searcher was given the same amount of time as the average time taken by a run of the entire algorithm on each graph. Each test was repeated 50 times and the results shown in figures 7 through 13 represent the averages obtained over the 50 runs. 
+\paragraph{Setup}Since no particular set of parameters seemed to prevail of others, we chose to run our final tests somewhat arbitrarily with a population size of 25, 0.5 mutation probability, and 2 cut points. In order to further investigate the efficacy of the various operators, four categories of final tests were performed on each of the CFGs. First, we evaluated each CFG against the entire algorithm as described in section 5.1. Then, to determine the effectiveness of the local optimization alone, we cut out all calls to test case and test suite crossover and mutation. To determine to what extent the genetic operators are capable of finding good test cases, we evaluated each CFG against the algorithm without any calls to either local optimization heuristics. Finally, each CFG was run against a completely random searcher for comparison. The random searcher was given the same amount of time as the average time taken by a run of the entire algorithm on each graph. Each test was repeated 50 times and the results shown in the following tables represent the averages obtained over the 50 runs. 
 
-\paragraph{Description of Figures} Figure 7 reports the average branch and multiple condition coverage achieved by running the entire algorithm. Figure 10 reports the average size, in number of test cases, of the test suites that resulted from the runs in Figure 7. In addition, Figure 10 reports the percentage of the test cases in the final suite that came from each of the algorithm's five test case sources. Recall, test cases present in the initial population have all of their parameters sourced from a single range found during the FindGoodRanges procedure. Tests resulting from test suite mutation are built by mixing parameters from the most useful ranges in the range set, which are sampled with replacement from the range set using a usefulness proportional selection scheme. The last three columns refer to test cases resulting from the TestCaseCrossover, LocalOptFromParameters, and LocalOptFromZero procedures respectively. Figures 8 and 9, as well as figures 11 and 12 have the same structure as figures 7 and 10, but correspond to the two partial forms of the algorithm mentioned in the Setup paragraph above. These allow for more thorough analysis of the roles played by each major operator in the algorithm, and enable us to draw some better conclusions about their search power.
 
-\begin{figure}[h!]
+\paragraph{Description of Tables} Table \ref{tab:CovAll} reports the average branch and multiple condition coverage achieved by running the entire algorithm. Table \ref{tab:ContrAll} reports the average size, in number of test cases, of the test suites that resulted from the runs in table \ref{tab:CovAll}. In addition, Table \ref{tab:ContrAll} reports the percentage of the test cases in the final suite that came from each of the algorithm's five test case sources. Recall, test cases present in the initial population have all of their parameters sourced from a single range found during the FindGoodRanges procedure. Tests resulting from test suite mutation are built by mixing parameters from the most useful ranges in the range set, which are sampled with replacement from the range set using a usefulness proportional selection scheme. The last three columns refer to test cases resulting from the TestCaseCrossover, LocalOptFromParameters, and LocalOptFromZero procedures respectively. Tables \ref{tab:CovNoGA} and \ref{tab:CovNoLO} have the structure as table \ref{tab:CovAll} while tables \ref{tab:ContribNoGA} and \ref{tab:ContribNoLO} have the same structure as table \ref{tab:ContrAll}, but correspond to the two partial forms of the algorithm mentioned in the Setup paragraph above. These allow for more thorough analysis of the roles played by each major operator in the algorithm, and enable us to draw some better conclusions about their search power.
+
+\begin{table}[h!]
 	% Entire Algorithm	- 	Coverages
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
@@ -424,20 +415,20 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c | c | c | c |}
 			\hline
-			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
-			HiLo & 1 & 1 & 46.56 & 1.14958 \\ \hline
-			Triangle & 1 & 0.952381 & 521.84 & 6.08553 \\ \hline
-			Medium-Hard-One & 0.923077 & 0.873239 & 1027.04 & 26.5636 \\ \hline
-			Medium-Hard-Two & 0.923077 & 0.898734 & 1300.4 & 34.7523 \\ \hline
-			Hard & 0.948718 & 0.846667 & 1824.02 & 95.5332 \\ \hline
-			ParameterTest & 0.5 & 0.25 & 500 & 2.80504 \\ \hline
+			CFG             & Branch Coverage & MCC Coverage & Generations & Run Time \\ \hline
+			HiLo            & 100\%           & 100\%        & 46          & 1s       \\ \hline
+			Triangle        & 100\%           & 95\%         & 521         & 6s       \\ \hline
+			Medium-Hard-One & 92\%            & 87\%         & 1027        & 26s      \\ \hline
+			Medium-Hard-Two & 92\%            & 90\%         & 1300        & 34s      \\ \hline
+			Hard            & 95\%            & 85\%         & 1824        & 95s      \\ \hline
+			ParameterTest   & 50\%            & 25\%         & 500         & 2s       \\ \hline
 		\end{tabular}
 	\end{center}
-	\caption{Coverage ratios of the entire algorithm,  \label{fig:finalResultEntireAlgCoverage}}
-\end{figure}
+	\caption{Coverage ratios of the entire algorithm}  
+	\label{tab:CovAll}
+\end{table}
 
-
-\begin{figure}[h!]
+\begin{table}[h!]
 	% Without GA	- 	Coverages
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
@@ -445,20 +436,20 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c | c | c | c |}
 			\hline
-			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
-			HiLo & 1 & 1 & 52.4 & 1.15083 \\ \hline
-			Triangle & 1 & 0.952381 & 530 & 5.38398 \\ \hline
-			Medium-Hard-One & 0.897436 & 0.830986 & 1140 & 27.2965 \\ \hline
-			Medium-Hard-Two & 0.923077 & 0.886076 & 1430 & 32.7474 \\ \hline
-			Hard & 0.884615 & 0.806667 & 1788.6 & 85.5322 \\ \hline
-			ParameterTest & 0.5 & 0.25 & 500 & 2.53027 \\ \hline
+			CFG             & Branch Coverage & MCC Coverage & Generations & Run Time \\ \hline
+			HiLo            & 100\%           & 100\%        & 52          & 1s       \\ \hline
+			Triangle        & 100\%           & 95\%         & 530         & 5s       \\ \hline
+			Medium-Hard-One & 90\%            & 83\%         & 1140        & 27s      \\ \hline
+			Medium-Hard-Two & 92\%            & 89\%         & 1430        & 33s      \\ \hline
+			Hard            & 88\%            & 81\%         & 1788        & 86s      \\ \hline
+			ParameterTest   & 50\%            & 25\%         & 500         & 3s       \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Coverage ratios of the algorithm without crossover and mutation}
-	\label{fig:finalResultNoGACoverage}
-\end{figure}
+	\label{tab:CovNoGA}
+\end{table}
 
-\begin{figure}[h!]
+\begin{table}[h!]
 	% No Local Optimization		- 	Coverages
 	% Number of tests per point: 50
 	% Maximum Generations: 10000 
@@ -466,20 +457,20 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c | c | c | c |}
 			\hline
-			CFG & Branch Coverage & MCC Coverage & Avg. Generations & Avg. Seconds \\ \hline
-			HiLo & 0.857143 & 0.785714 & 729.64 & 2.01433 \\ \hline
-			Triangle & 0.916667 & 0.904762 & 579.12 & 1.70271 \\ \hline
-			Medium-Hard-One & 0.769231 & 0.71831 & 1290.3 & 7.11525 \\ \hline
-			Medium-Hard-Two & 0.692308 & 0.670886 & 1096.88 & 6.71933 \\ \hline
-			Hard & 0.538462 & 0.433333 & 1255.18 & 19.3092 \\ \hline
-			ParameterTest & 0.5 & 0.25 & 500 & 0.882331 \\ \hline
+			CFG             & Branch Coverage & MCC Coverage & Generations & Run Time \\ \hline
+			HiLo            & 86\%            & 79\%         & 729         & 2s       \\ \hline
+			Triangle        & 92\%            & 90\%         & 579         & 2s       \\ \hline
+			Medium-Hard-One & 77\%            & 72\%         & 1290        & 7s       \\ \hline
+			Medium-Hard-Two & 70\%            & 67\%         & 1096        & 7s       \\ \hline
+			Hard            & 54\%            & 43\%         & 1255        & 19s      \\ \hline
+			ParameterTest   & 50\%            & 25\%         & 500         & 1s       \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Coverage ratios of the algorithm without local optimization}
-	\label{fig:finalResultNoLOCoverage}
-\end{figure}
+	\label{tab:CovNoLO}
+\end{table}
 
-\begin{figure}[h!]
+\begin{table}[h!]
 	% Entire Algorithm	- 	Test Case Contributions
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
@@ -487,20 +478,20 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c || c | c | c | c | c |}
 			\hline
-			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
-			HiLo & 8.720 & 58.027523 & 0.0 & 2.064220 & 9.403670 & 30.504587 \\ \hline 
-			Triangle & 15.0 & 75.066667 & 0.0 & 5.466667 & 8.80 & 10.666667 \\ \hline 
-			Medium-Hard-One & 29.940 & 35.270541 & 0.0 & 10.086840 & 31.863727 & 22.778891 \\ \hline 
-			Medium-Hard-Two & 33.560 & 27.711561 & 0.0 & 11.382598 & 14.421931 & 46.483909 \\ \hline 
-			Hard & 60.60 & 20.957096 & 0.066007 & 10.099010 & 19.603960 & 49.273927 \\ \hline 
-			ParameterTest & 1.0 & 100.0 & 0.0 & 0.0 & 0.0 & 0.0 \\ \hline 
+			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param) & L.O. (zero) \\ \hline
+			HiLo            & 9          & 58\%      & 0\%           & 2\%          & 9\%          & 31\%        \\ \hline
+			Triangle        & 15         & 75\%      & 0\%           & 5\%          & 9\%          & 11\%        \\ \hline
+			Medium-Hard-One & 30         & 35\%      & 0\%           & 10\%         & 32\%         & 23\%        \\ \hline
+			Medium-Hard-Two & 34         & 28\%      & 0\%           & 11\%         & 14\%         & 46\%        \\ \hline
+			Hard            & 60         & 201\%     & 0\%           & 10\%         & 20\%         & 49\%        \\ \hline
+			ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%         \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Entire Alg, Suite size and \% contributions by test case generation method}
-	\label{fig:finalResultEntireAlgContrib}
-\end{figure}
+	\label{tab:ContrAll}
+\end{table}
 
-\begin{figure}[h!]
+\begin{table}[h!]
 	% Without GA	- 	Test Case Contributions
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
@@ -508,20 +499,20 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c || c | c | c | c | c |}
 			\hline
-			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
-			HiLo & 8.70 & 57.471264 & 0.0 & 0.0 & 11.724138 & 30.804598 \\ \hline 
-			Triangle & 15.0 & 75.20 & 0.0 & 0.0 & 10.933333 & 13.866667 \\ \hline 
-			Medium-Hard-One & 29.820 & 35.144199 & 0.0 & 0.0 & 36.887995 & 27.967807 \\ \hline
-			Medium-Hard-Two & 33.80 & 27.514793 & 0.0 & 0.0 & 21.597633 & 50.887574 \\ \hline 
-			Hard & 59.660 & 21.387865 & 0.0 & 0.0 & 25.243044 & 53.369092 \\ \hline 
-			ParameterTest & 1.0 & 100.0 & 0.0 & 0.0 & 0.0 & 0.0 \\ \hline 
+			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param) & L.O. (zero) \\ \hline
+			HiLo            & 9          & 57\%      & 0\%           & 0\%          & 12\%         & 31\%        \\ \hline
+			Triangle        & 15         & 75\%      & 0\%           & 0\%          & 11\%         & 14\%        \\ \hline
+			Medium-Hard-One & 30         & 35\%      & 0\%           & 0\%          & 37\%         & 28\%        \\ \hline
+			Medium-Hard-Two & 34         & 28\%      & 0\%           & 0\%          & 22\%         & 51\%        \\ \hline
+			Hard            & 60         & 21\%      & 0\%           & 0\%          & 25\%         & 53\%        \\ \hline
+			ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%         \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Without GA, Suite size and \% contributions by test case generation method} 
-	\label{fig:finalResultNoGAContrib}
-\end{figure}
+	\label{tab:ContribNoGA}
+\end{table}
 
-\begin{figure}[h!]
+\begin{table}[h!]
 	% No Local Optimization 	- 	Test Case Contributions
 	% Number of tests per point: 50 *)
 	% Maximum Generations: 10000 *)
@@ -529,47 +520,46 @@ The results on all graphs showed that none of the parameters made a substantial 
 	\begin{center}
 		\begin{tabular}{| l | c || c | c | c | c | c |}
 			\hline
-			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param)  & L.O. (zero) \\ \hline
-			HiLo & 6.580 & 75.987842 & 0.911854 & 23.100304 & 0.0 & 0.0 \\ \hline 
-			Triangle & 14.0 & 80.571429 & 0.142857 & 19.285714 & 0.0 & 0.0 \\ \hline 
-			Medium-Hard-One & 24.440 & 42.553191 & 17.757774 & 39.689034 & 0.0 & 0.0 \\ \hline 
-			Medium-Hard-Two & 19.020 & 47.003155 & 0.525762 & 52.471083 & 0.0 & 0.0 \\ \hline 
-			Hard & 27.980 & 45.532523 & 15.153681 & 39.313796 & 0.0 & 0.0 \\ \hline 
-			ParameterTest & 1.0 & 100.0 & 0.0 & 0.0 & 0.0 & 0.0 \\ \hline
-			
+			CFG             & Suite Size & Init Pop. & TestSuite Mut & TestCase Mut & L.O. (param) & L.O. (zero) \\ \hline
+			HiLo            & 7          & 76\%      & 1\%           & 23\%         & 0\%          & 0\%         \\ \hline
+			Triangle        & 14         & 81\%      & 0\%           & 19\%         & 0\%          & 0\%         \\ \hline
+			Medium-Hard-One & 24         & 43\%      & 18\%          & 40\%         & 0\%          & 0\%         \\ \hline
+			Medium-Hard-Two & 19         & 47\%      & 1\%           & 52\%         & 0\%          & 0\%         \\ \hline
+			Hard            & 28         & 46\%      & 15\%          & 39\%         & 0\%          & 0\%         \\ \hline
+			ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%         \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{No Local Opt, Suite size and \% contributions by test case generation method}
-	\label{fig:finalResultNoLOContrib}
-\end{figure}
+	\label{tab:ContribNoLO}
+\end{table}
 
 
 
 
-\begin{figure}[h!]
+\begin{table}[h!]
 % Random Searcher
 \begin{center}
 	\begin{tabular}{| l | c | c | c | c |}
 		\hline
-		CFG & Branch Coverage & MCC Coverage & Seconds \\ \hline
-		SimpleIfElse & 0.5 & 0.5 & 0 \\ \hline
-		HiLo & 0.785714 & 0.642857 & 1.14958 \\ \hline
-		Medium-Hard-One & 0.128205 & 0.0704225 & 26.5636 \\ \hline
-		Triangle & 0.586111 & 0.715873 & 6.08553 \\ \hline
-		Medium-Hard-Two & 0.128205 & 0.0632911 & 34.7523 \\ \hline
-		Hard & 0.128205 & 0.0666667 & 95.5332 \\ \hline
-		ParameterTest & 0.5 & 0.25 & 0 \\ \hline
+		CFG             & Branch Coverage & MCC Coverage & Run Time   \\ \hline
+		HiLo            & 78\%            & 64\%         & 1s         \\ \hline
+		Triangle        & 59\%            & 71\%         & 6s         \\ \hline
+		Medium-Hard-One & 13\%            & 6\%          & 26s        \\ \hline
+		Medium-Hard-Two & 13\%            & 6\%          & 34s        \\ \hline
+		Hard            & 13\%            & 6\%          & 95s        \\ \hline
+		ParameterTest	& 50\% 			  & 25\% 		 & 2s 		  \\ \hline
 	\end{tabular}
 \end{center}
-\caption{Random Searcher \label{fig:finalResultRandomSearcher}}
-\end{figure}
+
+\caption{Random Searcher \label{tab:randSrch}}
+\end{table}
 
 \FloatBarrier
 \newpage
 \section{Discussion}
-In figure 7 we see that the overall branch and multiple condition coverage ratios achieved by the algorithm are quite high. Deeper analysis of the missing predicate for the triangle graph showed that it is actually unreachable, meaning the algorithm does in fact achieve 100\% coverage of this graph. In the case of the medium hard and hard graphs, the algorithm only failed to cover a very specific type of compound predicate. Namely, those which required two or more parameters to be exactly equal to each other, while also having the sum, the mean, and the standard deviations of the parameters falling within particular ranges. One could imagine adding a simple local optimization or test case generation heuristic that would attempt combinations of having several parameters equal to each other. With this, its likely that the algorithm could be extended to achieve 100\% coverage on all of these test programs. Despite these exciting results achieved when running the algorithm as a whole, the results of the algorithm without crossover and mutation, as well as the GA alone without local optimization bring into question their significance as well as the usefulness of the implemented CFGs as software testing benchmarks.
+In table \ref{tab:CovAll} we see that the overall branch and multiple condition coverage ratios achieved by the algorithm are quite high. Deeper analysis of the missing predicate for the triangle graph showed that it is actually unreachable, meaning the algorithm does in fact achieve 100\% coverage of this graph. In the case of the medium hard and hard graphs, the algorithm only failed to cover a very specific type of compound predicate. Namely, those which required two or more parameters to be exactly equal to each other, while also having the sum, the mean, and the standard deviations of the parameters falling within particular ranges. One could imagine adding a simple local optimization or test case generation heuristic that would attempt combinations of having several parameters equal to each other. With this, its likely that the algorithm could be extended to achieve 100\% coverage on all of these test programs. Despite these exciting results achieved when running the algorithm as a whole, the results of the algorithm without crossover and mutation, as well as the GA alone without local optimization bring into question their significance as well as the usefulness of the implemented CFGs as software testing benchmarks.
 
-As suspected from the parameter tuning tests, the algorithm achieves very similar coverage of the implemented CFGs with or without the genetic operators of crossover and mutation. From figure 10 we see that when running the entire algorithm, anywhere from 75 to 85\% of the test cases that make up the final test suites for the medium hard and hard graphs were either present in the initial population or were generated as the result of one of the local optimization heuristics. Comparison of figure 7 with figure 8 and figure 10 with figure 11 show that cutting out mutation and crossover all together does not significantly change the coverage achieved by the algorithm. In one sense this means that the FindGoodRanges procedure can be extremely effective in discovering ranges of parameters that traverse different paths of the CFG., and furthermore the combination of LocalOptFromZero and LocalOptFromParameters perform quite in finding test cases that navigate the delicate and complex relationships between the sums, means, standard deviations, and ranges of the parameters. In another sense, this may be an indication that the Hard CFG was not as challenging as expected and thus does not form a good benchmark for the algorithm.
+As suspected from the parameter tuning tests, the algorithm achieves very similar coverage of the implemented CFGs with or without the genetic operators of crossover and mutation. From table \ref{tab:ContrAll} we see that when running the entire algorithm, anywhere from 75 to 85\% of the test cases that make up the final test suites for the medium hard and hard graphs were either present in the initial population or were generated as the result of one of the local optimization heuristics. Comparison of table \ref{tab:CovAll} with table \ref{tab:ContribNoGA} and table \ref{tab:ContrAll} with \ref{tab:ContribNoGA} show that cutting out mutation and crossover all together does not significantly change the coverage achieved by the algorithm. In one sense this means that the FindGoodRanges procedure can be extremely effective in discovering ranges of parameters that traverse different paths of the CFG., and furthermore the combination of LocalOptFromZero and LocalOptFromParameters perform quite in finding test cases that navigate the delicate and complex relationships between the sums, means, standard deviations, and ranges of the parameters. In another sense, this may be an indication that the Hard CFG was not as challenging as expected and thus does not form a good benchmark for the algorithm.
 
 Although the initial range search and local optimizations are able to achieve most of the coverage on their own, the entire algorithm still outperformed the runs without crossover and mutation by as much as 6\% branch coverage and 4\% predicate coverage on the hard and medium hard CFGs. Thus, the genetic operators are not completely disposable. In addition, even without local optimization the GA still achieves respectable levels of coverage on each of the graphs in only a fourth of the time taken by the algorithm with the local optimization included. This striking time difference demonstrates that although the local opts perform quite well and can find a significant number of test cases and coverage missed by the GA alone, they do not scale well and would not be near as valuable on larger more complex programs. 
 
