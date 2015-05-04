@@ -414,7 +414,6 @@ The results on all graphs showed that none of the parameters made a substantial 
 			Medium-Hard-One & 92\%            & 87\%         & 1027        & 26s      \\ \hline
 			Medium-Hard-Two & 92\%            & 90\%         & 1300        & 34s      \\ \hline
 			Hard            & 95\%            & 85\%         & 1824        & 95s      \\ \hline
-			ParameterTest   & 50\%            & 25\%         & 500         & 2s       \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Coverage ratios of the entire algorithm}  
@@ -435,7 +434,6 @@ The results on all graphs showed that none of the parameters made a substantial 
 			Medium-Hard-One & 90\%            & 83\%         & 1140        & 27s      \\ \hline
 			Medium-Hard-Two & 92\%            & 89\%         & 1430        & 33s      \\ \hline
 			Hard            & 88\%            & 81\%         & 1788        & 86s      \\ \hline
-			ParameterTest   & 50\%            & 25\%         & 500         & 3s       \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Coverage ratios of the algorithm without crossover and mutation}
@@ -456,7 +454,6 @@ The results on all graphs showed that none of the parameters made a substantial 
 			Medium-Hard-One & 77\%            & 72\%         & 1290        & 7s       \\ \hline
 			Medium-Hard-Two & 70\%            & 67\%         & 1096        & 7s       \\ \hline
 			Hard            & 54\%            & 43\%         & 1255        & 19s      \\ \hline
-			ParameterTest   & 50\%            & 25\%         & 500         & 1s       \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Coverage ratios of the algorithm without local optimization}
@@ -477,7 +474,6 @@ The results on all graphs showed that none of the parameters made a substantial 
 			Medium-Hard-One & 30         & 35\%      & 0\%           & 10\%         & 32\%         & 23\%        \\ \hline
 			Medium-Hard-Two & 34         & 28\%      & 0\%           & 11\%         & 14\%         & 46\%        \\ \hline
 			Hard            & 60         & 201\%     & 0\%           & 10\%         & 20\%         & 49\%        \\ \hline
-			ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%         \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Entire Alg, Suite size and \% contributions by test case generation method}
@@ -498,7 +494,6 @@ The results on all graphs showed that none of the parameters made a substantial 
 			Medium-Hard-One & 30         & 35\%      & 0\%           & 0\%          & 37\%         & 28\%        \\ \hline
 			Medium-Hard-Two & 34         & 28\%      & 0\%           & 0\%          & 22\%         & 51\%        \\ \hline
 			Hard            & 60         & 21\%      & 0\%           & 0\%          & 25\%         & 53\%        \\ \hline
-			ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%         \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{Without GA, Suite size and \% contributions by test case generation method} 
@@ -519,7 +514,6 @@ The results on all graphs showed that none of the parameters made a substantial 
 			Medium-Hard-One & 24         & 43\%      & 18\%          & 40\%         & 0\%          & 0\%         \\ \hline
 			Medium-Hard-Two & 19         & 47\%      & 1\%           & 52\%         & 0\%          & 0\%         \\ \hline
 			Hard            & 28         & 46\%      & 15\%          & 39\%         & 0\%          & 0\%         \\ \hline
-			ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%         \\ \hline
 		\end{tabular}
 	\end{center}
 	\caption{No Local Opt, Suite size and \% contributions by test case generation method}
@@ -540,7 +534,6 @@ The results on all graphs showed that none of the parameters made a substantial 
 		Medium-Hard-One & 13\%            & 6\%          & 26s        \\ \hline
 		Medium-Hard-Two & 13\%            & 6\%          & 34s        \\ \hline
 		Hard            & 13\%            & 6\%          & 95s        \\ \hline
-		ParameterTest	& 50\% 			  & 25\% 		 & 2s 		  \\ \hline
 	\end{tabular}
 \end{center}
 
@@ -551,6 +544,14 @@ The results on all graphs showed that none of the parameters made a substantial 
 \newpage
 \section{Discussion}
 In table \ref{tab:CovAll} we see that the overall branch and multiple condition coverage ratios achieved by the algorithm are quite high. Deeper analysis of the missing predicate for the triangle graph showed that it is actually unreachable, meaning the algorithm does in fact achieve 100\% coverage of this graph. In the case of the medium hard and hard graphs, the algorithm only failed to cover a very specific type of compound predicate. Namely, those which required two or more parameters to be exactly equal to each other, while also having the sum, the mean, and the standard deviations of the parameters falling within particular ranges. One could imagine adding a simple local optimization or test case generation heuristic that would attempt combinations of having several parameters equal to each other. With this, its likely that the algorithm could be extended to achieve 100\% coverage on all of these test programs. Despite these exciting results achieved when running the algorithm as a whole, the results of the algorithm without crossover and mutation, as well as the GA alone without local optimization bring into question their significance as well as the usefulness of the implemented CFGs as software testing benchmarks.
+
+%		ParameterTest	& 50\% 			  & 25\% 		 & 2s 	
+%       ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%
+%		ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%
+%		ParameterTest   & 1          & 100\%     & 0\%           & 0\%          & 0\%          & 0\%
+%       ParameterTest   & 50\%            & 25\%         & 500         & 2s       \\ \hline
+%		ParameterTest   & 50\%            & 25\%         & 500         & 3s       \\ \hline
+%		ParameterTest   & 50\%            & 25\%         & 500         & 1s       \\ \hline
 
 As suspected from the parameter tuning tests, the algorithm achieves very similar coverage of the implemented CFGs with or without the crossover and mutation operators. From table \ref{tab:ContrAll} we see that when running the entire algorithm, anywhere from 75 to 85\% of the test cases that make up the final test suites for the medium hard and hard graphs were either present in the initial population or were generated as the result of one of the local optimization heuristics. Comparison of table \ref{tab:CovAll} with table \ref{tab:ContribNoGA} and table \ref{tab:ContrAll} with \ref{tab:ContribNoGA} show that cutting out mutation and crossover all together does not significantly change the coverage achieved by the algorithm. In one sense this means that the FindGoodRanges procedure can be extremely effective in discovering ranges of parameters that traverse different paths of the CFG., and furthermore the combination of LocalOptFromZero and LocalOptFromParameters perform quite in finding test cases that navigate the delicate and complex relationships between the sums, means, standard deviations, and ranges of the parameters. In another sense, this may be an indication that the Hard CFG was not as challenging as expected and thus does not form a good benchmark for the algorithm.
 
