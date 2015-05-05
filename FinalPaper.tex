@@ -67,7 +67,7 @@ Automatic test generation can be characterized by the creation of some system th
 
 Genetic algorithms represent a third, and perhaps more interesting, method of automatic test generation. Tests, or test suites, take the role of the organisms in this genetic algorithm while their coverage, e.g. branch, conditional, etc, determines their fitness \cite{sthammer4}. This method represented an underexploited area of research and will be further examined in this paper. 
 
-\newpage
+
 \section{Problem Definition}
 In high-level terms the problem succinctly presents itself as such: automatically generate good tests for a given program; but this leaves several open questions, such as ``what information if any can be gotten from the program to help design the tests?'' and ``what constitutes a good test?'' The field of structural testing will help answer both of these questions.
 
@@ -77,9 +77,8 @@ When evaluating a test's coverage, the predicates, and the flow of control they 
 
 The problem to solve can now be stated with more detail: automatically create a test suite that covers all, or most, paths in a programs control flow graph. It is the authors' intention to solve this problem with a genetic algorithm. 
 
-To design a genetic algorithm that solves this problem it will need the following information: the input parameters for the program, the control flow graph, and the predicates affecting each path. The output would consist of a population of test cases or test suites, depending on design decisions, that should consist of good tests. 
+To design a genetic algorithm that solves this problem it will need the following information: the input parameters for the program, the control flow graph, and the predicates affecting each path. The output would consist of a test suite that should reach a high coverage metric. 
 
-\newpage
 \section{Related Work}
 Using genetic algorithms to generate tests represents a relatively new area of research, with the first published results dating from only 1992 \cite{apps5}. Initially, genetic algorithms evolved tests that would ensure all predicates for a single path of execution were true\cite{limits6}. Later, Watkins created an adaptive fitness function that would create tests for one particular branch of the control flow graph and then switch to a different branch once some tests were found; this approach allowed a single run of the genetic algorithm to attempt to evolve the tests needed for full branch coverage\cite{limits6}. Watson's results showed that a genetic algorithm, compared to random testing, required ``an order of magnitude fewer tests to achieve path coverage…''\cite{limits6} 
 
@@ -91,12 +90,6 @@ The newest genetic algorithms attempt to make use of past information in some wa
 
 More recent work has been done by Gordon Fraser, Andrea Arcui, and others in their development of the evolutionary test suite generator EvoSuite \cite{FraserTestSuites}. This is some of the earliest research using test suites instead of test cases for the organism's chromosome. Test cases are also unique in that they are composed of Java statements rather than the program's input parameters. Both test cases and test suites can change size during the simulation. EvoSuite has proven to be a powerful method for automatic test generation \cite{Fraser}.
 
-
-
-
-
-
-\newpage
 \section{Our Work}
 Our approach focused on the idea of using test suites as an organism's chromosome rather than test cases. We also added some new evolutionary algorithm techniques that did not appear to be widely used in other literature for this problem. Additionally, we implemented several test programs of varying difficulty. Each of these items will now be discussed in turn.
 
@@ -104,7 +97,7 @@ As noted above, test suites compose the population and each of these consists of
 
 Since an organism’s chromosome is now an entire test suite, one may think the simulation should try to evolve organisms with the maximum possible coverage, but this is not the case. Even if no single organism has full coverage, if the population as a whole covers everything, then there is no need to continue the simulation. In order to still get a single test suite with full coverage, as the simulation discovers test cases that offer new coverage, it records their inputs. 
 
-Many of the GA’s from the literature for this problem are rather simplistic \textbf{TODO: add citations}. To improve upon them we implemented and tested many techniques, including several types of fitness scaling, several base fitness functions, several mutation operators for test suites, tournament selection, several types of local optimizations, several adaptive parameters et al… Most of these were not fit enough to survive our culling. The subset that did survive includes local optimization for test cases, fitness sharing, and adaptive ranges. These are discussed in more detail in the algorithm sub-section.
+In an attempt to improve upon GAs from the literature, we implemented and tested many techniques, including several types of fitness scaling, several base fitness functions, several mutation operators for test suites, tournament selection, several types of local optimizations, several forms of adaptive mutation, and others. Most of these were not fit enough to survive our culling. The subset that did survive includes local optimization for test cases, fitness sharing, and adaptive ranges. These are discussed in more detail in the algorithm sub-section.
 
 Test programs are provided to the algorithm in the form of executable CFGs. A CFG represents linear blocks of instructions from the target program as nodes. The edges represent possible different directions the flow of control can follow when it reaches a predicate.  When implementing multiple condition coverage, one could simply expand each predicate, turning it into one predicate for each possible outcome; this has its advantages but can make tracking branch versus MCC coverage harder. Our implementation uses edges solely for possible directions of control in the original target program. A separate set for predicates is kept, and each node (aka block) is responsible for tracking its predicates. This means that in our implementation, covering all edges equates to achieving 100\% branch coverage and covering all predicates equates to achieving 100\% multiple condition coverage. 
 
@@ -363,9 +356,6 @@ Maybe this should be called Summary or 'Algorithm Summary' so the reader doesnt 
 \subsubsection{Summary}
 The proposed genetic algorithm seeks to generate a test suite with maximal coverage by utilizing a simplifying assumption of the relationships between input parameters. First, the algorithm finds a set of promising ranges that give unique coverage when used as the sole source of parameter values. Then a genetic algorithm, with the help of local optimization and range set adaptation, searches the space of possible test cases stemming from the most promising combinations of these ranges to build a test suite with maximal branch and multiple condition coverage. The results of our tests are promising, however further inspection uncovered that the majority of the test cases that made it into the final test suite originated from the initial population and local optimization, and the genetic search did not work as well as we hoped. 
 
-
-\newpage
-
 \section{Experimental Results}
 
 The algorithm was tested against 5 control flow graphs of varying complexity, these include a simple too high or too low number guessing program, the well known triangle problem, and three larger custom built CFGs. Our testing consisted of two steps. First, we analyzed the effect of varying the parameters of population size, mutation probability, and number of cut points on some of the implemented graphs. Based on the results of these initial tests we set up a number of final tests to perform. These will be described in detail below. 
@@ -501,7 +491,7 @@ The results on all graphs showed that none of the parameters made a substantial 
 \end{table}
 
 \FloatBarrier
-\newpage
+
 \section{Discussion}
 In table \ref{tab:entireAlg} we see that the overall branch and multiple condition coverage ratios achieved by the algorithm are quite high. Deeper analysis of the missing predicate for the triangle graph showed that it is actually unreachable, meaning the algorithm does in fact achieve 100\% coverage of this graph. Despite these exciting results achieved when running the algorithm as a whole, the results of the algorithm without crossover and mutation, as well as the GA alone without local optimization bring into question their significance as well as the usefulness of the implemented CFGs as software testing benchmarks.
 
@@ -513,13 +503,13 @@ The results for the percent contributions of test cases from test suite mutation
 
 Although the initial range search and local optimizations are able to achieve most of the coverage on their own, the entire algorithm still outperformed the runs without crossover and mutation by as much as 7\% branch coverage and 4\% predicate coverage on the hard CFGs. Thus, the genetic operators are not completely disposable. Even without local optimization, the GA still achieves respectable levels of coverage on each of the graphs in only a fourth of the time taken by the algorithm with the local optimization included. This striking time difference demonstrates that although the local opts perform quite well and can find a significant number of test cases and coverage missed by the GA alone, they do not scale well and would not be near as valuable on larger more complex programs.
 
-\newpage
+
 \section{Conclusion}
 
 
 \subsection{Future Work}
 
-\newpage
+
 \section*{Appendix A}
 
 The algorithm takes three input parameters, population size, mutation probability, and number of cut points. In order to find a good set of parameter, tests were run in which we kept just one variable constant while trying to optimize the other two. For example, a test would keep population size constant at 10 while letting the mutation probability range from 0.00 to 1.00 and letting the number of cut points range from 1 to 4. A ``step size'' is used to avoid trying too many values. We first test the mutation probability at 0.00 and then for the next test we step it up to its next value. Each parameter, with its starting value, ending value, and step size can be seen in the following table.
