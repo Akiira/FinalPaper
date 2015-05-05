@@ -232,6 +232,29 @@ $\hbox{TestCaseCrossover}(cutPts, P_m)$
 	\caption{Algorithm for test case crossover \label{fig:tcCross}}
 \end{figure}
 
+\begin{comment}
+%============================= Test Suite Mutation Alg =====================
+\begin{figure}[h!]
+	\begin{center}
+		\hrule
+		\medskip
+		\begin{Verbatim}[fontfamily=tt, xleftmargin=10pt, commandchars=\\\{\},
+		codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
+$\hbox{TestSuiteMutation}(P_m)$  
+   for (i = 0 : numberOfTestCases) 
+      if (toss < $P_m$) 
+         Build new test case from most useful ranges, store in $tc$
+         if ($tc$ covers anything new) 
+            Replace a duplicate test case with $tc$
+   end for
+		\end{Verbatim}
+		\hrule
+	\end{center}
+	\caption{Algorithm for test suite mutation \label{fig:tcCfross}}
+\end{figure}
+\end{comment}
+
+
 \FloatBarrier
 \subsubsection{Local Optimization}
 
