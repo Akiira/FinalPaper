@@ -111,14 +111,14 @@ codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
       if $currentGen$ is multiple of 10
          TryLocalOptimization()
    
-     if no improvement for $\ge20$ generations and $currentGen$ is multiple of 100
-        AdaptRanges()
+      if no improvement for $\ge20$ generations and $currentGen$ is multiple of 100
+         AdaptRanges()
    
-     if no improvement for $\ge20$ generations and $currentGen$ is multiple of 30 
-        Proportionally select two test suites from the population
-        Do crossover and mutation on these to get children
-        Replace both parents with the children
-     fi
+      if no improvement for $\ge20$ generations and $currentGen$ is multiple of 30 
+         Proportionally select two test suites from the population
+         Do crossover and mutation on these to get children
+         Replace both parents with the children
+      fi
    
      $currentGen \leftarrow currentGen+1$
    \} while ending criteria has not been met
