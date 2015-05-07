@@ -54,7 +54,7 @@ In high-level terms the problem succinctly presents itself as such: automaticall
 
 In any given program there are multiple paths in which flow of control can traverse; these can be represented by a control flow graph (CFG); predicates, i.e. conditional statements in the code, determine which path to take [1]. Structural testing encompasses the use of such information to design tests [1].
 
-When evaluating a test's coverage, the predicates, and the flow of control they affect, play an important role. Consider the following simple metric: A test suite should cover every possible path in a program at least once. Using the control flow graph one can easily evaluate the quality of tests against this metric. A good test suite then becomes one in which most if not all of the possible paths are taken at least once. Structural testing uses this metric, and similar metrics, as its primary evaluation method for tests.
+When evaluating a test's coverage, the predicates, and the flow of control they affect, play an important role. Consider the following simple metric: A test suite should cover every possible path in a program at least once. Using the control flow graph one can easily evaluate the quality of tests against this metric. A good test suite then becomes one in which most if not all of the possible paths are taken at least once. Structural testing uses this metric, and similar metrics, as its primary evaluation method for tests. 
 
 The problem to solve can now be stated with more detail: automatically create a test suite that covers all, or most, paths in a programs control flow graph. It is the authors' intention to solve this problem with a genetic algorithm. 
 
@@ -63,11 +63,11 @@ To design a genetic algorithm that solves this problem it will need the followin
 \section{Related Work}
 Using genetic algorithms to generate tests represents a relatively new area of research, with the first published results dating from only 1992 \cite{apps5}. Initially, genetic algorithms evolved tests that would ensure all predicates for a single path of execution were true\cite{limits6}. Later, Watkins created an adaptive fitness function that would create tests for one particular branch of the control flow graph and then switch to a different branch once some tests were found; this approach allowed a single run of the genetic algorithm to attempt to evolve the tests needed for full branch coverage\cite{limits6}. Watson's results showed that a genetic algorithm, compared to random testing, required ``an order of magnitude fewer tests to achieve path coverage…''\cite{limits6} 
 
-Up to this point, the fitness functions viewed a branch's predicate as just a boolean function, that is true or false; this did not take full advantage of white box testing in which the exact details of each predicate can be known. Sthammer wished to use information about these predicates to create boundary value tests. He accomplished this by using a distance function that reported the distance between a test's current values for a predicate and what values that predicate needed to be true. Sthammer's showed that his technique preformed better then a random search. 
+Up to this point, the fitness functions viewed a branch's predicate as just a boolean function, that is true or false; this did not take full advantage of white box testing in which the exact details of each predicate can be known. Sthammer wished to use information about these predicates to create boundary value tests. He accomplished this by using a distance function that reported the distance between a test's current values for a predicate and what values that predicate needed to be true. Sthammer showed that his technique preformed better then a random search. 
 
 Pargas et al proposed the used of a control-dependence graph instead of a control flow graph to guide the search of test cases. They implemented this technique in a parallelizable algorithm called GenerateData\cite{pargas8}. When tested on programs with control flow graphs of cyclomatic complexity of seven significant improvements over random search were reported\cite{pargas8}.
 
-The newest genetic algorithms attempt to make use of past information in some way. In Beuno and Jino's research they used information about past runs of the genetic algorithm to influence the creation of the initial population used in a new run\cite{limits6}. ``The results with their six small test programs were promising.''\cite{limits6} Berndt et al try to take advantage of past information in a different way. Their algorithm includes a ``fossil record that records past organisms, allowing any current fitness calculations to be influence by past generation.''\cite{limits6}
+The newest genetic algorithms attempt to make use of past information in some way. In Beuno and Jino's research they used information about past runs of the genetic algorithm to influence the creation of the initial population used in a new run\cite{limits6}. ``The results with their six small test programs were promising.''\cite{limits6} Berndt et al try to take advantage of past information in a different way. Their algorithm includes a ``fossil record that records past organisms, allowing any current fitness calculations to be influenced by past generations.''\cite{limits6}
 
 More recent work has been done by Gordon Fraser, Andrea Arcui, and others in their development of the evolutionary test suite generator EvoSuite \cite{FraserTestSuites}. This is some of the earliest research using test suites instead of test cases for the organism's chromosome. Test cases are also unique in that they are composed of Java statements rather than the program's input parameters. Both test cases and test suites can change size during the simulation. EvoSuite has proven to be a powerful method for automatic test generation \cite{Fraser}.
 
@@ -85,8 +85,7 @@ Test programs are provided to the algorithm in the form of executable CFGs. A CF
 \subsection{Algorithm}\label{sec:Alg}
 At a high level the algorithm is based around a simple observation from the field of software testing. Programs typically only make use of a small subset of their input domains, thus it is wasteful to search the entire space of possible test cases with equal probability. Most meaningful programs have several parameters and typically have complex relationships between input parameters that drive the control flow of the program. The algorithm proposed here finds much of its basis in a simplifying assumption of these complex relationships. Consider a program with three inputs x, y, and z. Let R1, R2, and R3 be ranges in the domains of these inputs. Suppose this program requires a test case of the following form to cover a specific path in the CFG $\{ x \in R1, y \in R2, z \in R3 \}$. The assumption made is that $\{ x \in R1, y \in R1, z \in R1 \}$, $\{ x \in R2, y \in R2, z \in R2 \}$, and $\{ x \in R3, y \in R3, z \in R3 \}$ will each cover different paths in the control flow graph. With MCC, test cases in the ranges that satisfy the constituent conditions of a compound predicate will have differing coverage. Thus these ranges can be discovered easily. Once discovered these ranges can be combined to saisfy the more complicated compound conditions. 
 
-The following section has been broken down into the subsections for each major aspect of the proposed algorithm. First, the main simulation loop is provided to give context throughout the rest of the sections. The notion of input parameter ranges and the simulation's range set is then introduced, followed by a discussion of the population initialization. Fitness calculation and association with organisms is explored; then the tools used for test case generation, including test case crossover and mutation, test suite crossover and mutation, local optimization and range set adaptation are studied.
-
+The following section has been broken down into the subsections for each major aspect of the proposed algorithm. First, the main simulation algorithm is provided to give context throughout the rest of the sections. The notion of input parameter ranges and the simulation's range set is then introduced, followed by a discussion of the population initialization. Fitness calculation and association with organisms is explored; then the tools used for test case generation, including test case crossover and mutation, test suite crossover and mutation, local optimization and range set adaptation are studied.
 \subsubsection{Simulation Algorithm}
 
 %============================= Main Loop Alg =====================
@@ -105,8 +104,8 @@ codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
       UpdatePopulationsFitness()
    
       Proportionally select a test suite, $ts$, from the population
-      Use $ts$ for test case crossover and mutation to get $tc$
-      If $tc$ is not null add it to $ts$ by replacing a duplicate test case
+      Use $ts$ for test case crossover and mutation to get $child$
+      If $child$ is not null add it to $ts$ by replacing a duplicate test case
    
       if $currentGen$ is multiple of 10
          TryLocalOptimization()
@@ -125,7 +124,7 @@ codes={\catcode`$=3\catcode`^=7\catcode`_=8}]
 \end{Verbatim}
 \hrule
 	\end{center}
-	\caption{Algorithm for main simulation loop \label{fig:simLoopAlt}}
+	\caption{Algorithm for the main simulation \label{fig:simLoopAlt}}
 \end{figure}
 \FloatBarrier
 %============================= End Main Loop Alg =====================
@@ -220,16 +219,16 @@ $\hbox{TestCaseCrossover}(cutPts, P_m)$
       $child2.$mutate($P_m$)
 
       if $child1$ is covering anything not covered by ts
-         $ts$.addTestCase($child1$)
+         Add child1 to $ts$ by replacing a duplicate test case
          break
       else if $child2$ is covering anything not covered by ts
-         $ts$.addTestCase($child2$)
+         Add child2 to $ts$ by replacing a duplicate test case
          break
    end-for
 		\end{Verbatim}
 		\hrule
 	\end{center}
-	\caption{Algorithm for test case crossover \label{fig:tcCross}}
+	\caption{Algorithm for test case crossover with mutation and replacement\label{fig:tcCross}}
 \end{figure}
 
 \begin{comment}
