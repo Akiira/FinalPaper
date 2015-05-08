@@ -52,7 +52,7 @@ Genetic algorithms represent a third, and perhaps more interesting, method of au
 \section{Problem Definition}
 In high-level terms the problem succinctly presents itself as such: automatically generate good tests for a given program; but this leaves several open questions, such as ``what information if any can be gotten from the program to help design the tests?'' and ``what constitutes a good test?'' The field of structural testing will help answer both of these questions.
 
-In any given program there are multiple paths in which flow of control can traverse; these can be represented by a control flow graph (CFG). CFGs are directed graphs in which vertices represent sequential blocks of code and edges represent the possible branches in control flow. Evaluation of the predicates, i.e. conditional statements in the code, determine which edges are followed in the path from the start to the exit vertex of the program [1]. Structural testing encompasses the use of these graphs to design and evaluate tests [1].
+In any given program there are multiple paths in which flow of control can traverse; these can be represented by a control flow graph (CFG). CFGs are directed graphs in which vertices represent sequential blocks of code and edges represent the possible branches in control flow. Evaluation of the predicates, i.e. conditional statements in the code, determine which edges are followed in the path from the start to the exit vertex of the program. Structural testing encompasses the use of these graphs to design and evaluate tests.
 
 Many metrics can be used to evaluate a test suite's coverage of a CFG. For the purposes of this research, branch and multiple condition coverage will be maximized. The goal of branch coverage is to traverse every edge of the control flow graph at least once; note this also implies that every statement is executed at least once. The problem with branch coverage as a metric is that it does not take into account all possible ways to traverse an edge. 
 
@@ -63,7 +63,7 @@ The problem to solve can now be stated with more detail: automatically create a 
 To design a genetic algorithm that solves this problem it will need the following information: the input parameters for the program, the control flow graph, and the predicates affecting each path. The output consists of a test suite that should reach a high level of branch and multiple condition coverage.
 
 \section{Related Work}
-Using genetic algorithms to generate tests represents a relatively new area of research, with the first published results dating from only 1992 \cite{apps5}. Initially, genetic algorithms evolved tests that would ensure all predicates for a single path of execution were true\cite{limits6}. Later, Watkins created an adaptive fitness function that would create tests for one particular branch of the control flow graph and then switch to a different branch once some tests were found; this approach allowed a single run of the genetic algorithm to attempt to evolve the tests needed for full branch coverage\cite{limits6}. Watson's results showed that a genetic algorithm, compared to random testing, required ``an order of magnitude fewer tests to achieve path coverage…''\cite{limits6} 
+Initially, genetic algorithms evolved tests that would ensure all predicates for a single path of execution were true\cite{limits6}. Later, Watkins created an adaptive fitness function that would create tests for one particular branch of the control flow graph and then switch to a different branch once some tests were found; this approach allowed a single run of the genetic algorithm to attempt to evolve the tests needed for full branch coverage\cite{limits6}. Watson's results showed that a genetic algorithm, compared to random testing, required ``an order of magnitude fewer tests to achieve path coverage…''\cite{limits6} 
 
 Up to this point, the fitness functions viewed a branch's predicate as just a boolean function, that is true or false; this did not take full advantage of white box testing in which the exact details of each predicate can be known. Sthammer wished to use information about these predicates to create boundary value tests. He accomplished this by using a distance function that reported the distance between a test's current values for a predicate and what values that predicate needed to be true. Sthammer showed that his technique preformed better then a random search. 
 
@@ -566,13 +566,6 @@ The algorithm takes three input parameters, population size, mutation probabilit
   Software Quality Journal.
   pp. 127-135, 
   1997.    
-\bibitem{apps5}
-  X. S, E. C, S. C, L. G. A, K. S and K. K,
-  \emph{Applications of Genetic Algorithms to Software Testing}.
-  in Internation Conference on Software Engineering and its Applications, 
-  Toulouse, 
-  1992.\textbf{TODO: fix this citation}
-  
 \bibitem{limits6}
   	S. Aljahdali, Taif, A. Ghiduk and M. El-Telbany,
   \emph{The limitations of genetic algorithms in software testing}.
